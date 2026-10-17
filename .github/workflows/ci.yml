@@ -40,7 +40,8 @@ jobs:
       - name: Every recorded run manifest validates
         run: |
           shopt -s nullglob
-          files=(data/v2-results/*/*/*/run.yaml)
+          # data/v2-results/<suite>/<profile>/<suite>/<timestamp>/run.yaml
+          files=(data/v2-results/*/*/*/*/run.yaml)
           if [ ${#files[@]} -eq 0 ]; then echo "no runs recorded yet"; exit 0; fi
           python3 scripts/v2/validate_run.py "${files[@]}"
       - name: Index is current, required cells present
