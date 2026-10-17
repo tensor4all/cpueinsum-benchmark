@@ -17,22 +17,25 @@ jobs:
         run: ./scripts/setup_extern_deps.sh
       - name: Declarations are well formed
         run: python3 -m campaign_toolkit.declarations
-      - name: The suite declares exactly the pinned corpus's instances
+      - name: The suite declares exactly the pinned corpus's instances, minus the documented exclusions
         # The suite is generated from the harness's census over this corpus. A corpus bump that
         # was not followed by a regeneration would leave the declaration naming instances the
         # corpus no longer has (or missing ones it gained), and nothing else here would notice.
         run: |
           python3 - <<'PY'
-          import json, pathlib, yaml
+          import json, pathlib, sys, yaml
+          sys.path.insert(0, 'scripts')
+          from gen_suite_from_census import EXCLUDED
           suite = yaml.safe_load(pathlib.Path('benchmarks/suites/cpueinsum.yaml').read_text())
           declared = {f for families in suite['family_groups'].values() for f in families}
-          corpus = {
-              json.loads(p.read_text())['name']
-              for p in sorted(pathlib.Path('extern/tenferro-einsum-benchmark/data/instances').glob('*.json'))
-          }
-          assert declared == corpus, (
-              f'declared-only {sorted(declared - corpus)}, corpus-only {sorted(corpus - declared)}')
-          print(f'suite covers all {len(corpus)} instances of the pinned corpus')
+          corpus = {json.loads(p.read_text())['name'] for p in
+                    sorted(pathlib.Path('extern/tenferro-einsum-benchmark/data/instances').glob('*.json'))}
+          expected = corpus - set(EXCLUDED)
+          assert declared == expected, (
+              f'declared but not expected {sorted(declared - expected)}, '
+              f'expected but not declared {sorted(expected - declared)}')
+          print(f'suite declares {len(declared)} of the pinned corpus\'s {len(corpus)} instances; '
+                f'not declared (with a reason in gen_suite_from_census.py): {sorted(EXCLUDED)}')
           PY
       - name: Every recorded run manifest validates
         run: |

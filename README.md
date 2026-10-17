@@ -29,6 +29,13 @@ Every instance fixes its own extents, so the declared identity shape is the nume
 `n = 1` and the real operand geometry travels in the harness's own `case_m`/`case_n`/`case_k`
 columns.
 
+Thirteen of the corpus's fourteen instances are declared.
+`str_mps_varying_inner_product_200` is refused by the harness's own cross-row verification at
+every thread budget (`MISMATCH(opt_flops) rel_err=NaN`, exit 1), so a declaration containing
+it cannot be recorded; the evidence and the decision are in
+[`docs/verify-refusal-str_mps-varying-inner-product-200.md`](docs/verify-refusal-str_mps-varying-inner-product-200.md),
+and the omission is printed in the suite and on every page that quotes it.
+
 The harness lives in the measured repository (`crates/cpueinsum-bench`) and is built out of
 the same checkout as the library it measures, so the recorded commit describes both.
 
@@ -46,6 +53,7 @@ The campaign owns its declarations, its pins and its launcher; the machinery is 
 # harness or the corpus moves; the committed file is what CI checks)
 python3 scripts/gen_suite_from_census.py \
     --binary target/cpueinsum-rev/1030db32c860/bin/cpueinsum-bench \
+    --instances extern/tenferro-einsum-benchmark/data/instances \
     --revision "$(git -C extern/cpueinsum-rs rev-parse HEAD)" \
     --out benchmarks/suites/cpueinsum.yaml
 

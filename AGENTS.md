@@ -45,6 +45,14 @@ invoked. Do not vendor the corpus, and do not edit the measured repository or th
 to paper over this: if the toolkit grows a way to pass a harness input path, delete the
 launcher and name the cargo artifact instead.
 
+One corpus instance is **not declared**: `str_mps_varying_inner_product_200` is refused by
+the harness's own cross-row verification at every thread budget (`MISMATCH(opt_flops)
+rel_err=NaN`, exit 1), so a declaration containing it cannot be recorded. The evidence, the
+extent probes and the two rejected alternatives are in
+`docs/verify-refusal-str_mps-varying-inner-product-200.md`; the exclusion itself lives in
+`EXCLUDED` in `scripts/gen_suite_from_census.py` and is printed into the suite's prose and
+CI's corpus check. If the harness is fixed, delete that entry and regenerate the suite.
+
 ## Timing discipline
 
 One measurement at a time, and **no build while a measurement is running**.

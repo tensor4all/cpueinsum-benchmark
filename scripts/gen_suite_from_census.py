@@ -16,6 +16,7 @@ real change in the corpus or in the harness's census.
 Usage:
     python3 scripts/gen_suite_from_census.py \
         --binary target/cpueinsum-rev/1030db32c860/bin/cpueinsum-bench \
+        --instances extern/tenferro-einsum-benchmark/data/instances \
         --revision 1030db32c860db4f8d2d76f29d97ff91378dc0e8 \
         --out benchmarks/suites/cpueinsum.yaml
 
@@ -41,6 +42,38 @@ import yaml
 CENSUS_HEADER = ["regime", "family", "dtype", "order", "m", "n", "k",
                  "batch", "row", "threads", "status", "note"]
 
+# Corpus instances this campaign does not declare, with the reason recorded in the
+# generated file. An entry here is a *declaration* decision, not a silence: the census is
+# taken over the remaining instances, and the reason is printed in the suite's prose and
+# therefore on every page. CI checks the declared families against the pinned corpus
+# minus exactly these names.
+#
+# `str_mps_varying_inner_product_200` (200 operands, 199 steps, a rank-0 output) is
+# refused by the harness's own cross-row verification at every declared thread budget:
+#
+#   verify: 28 declared cell(s), 27 ok, 0 skipped, 1 failed
+#   MISMATCH opt_flops str_mps_varying_inner_product_200 float64 1 MISMATCH(opt_flops) rel_err=NaN
+#   exit 1
+#
+# The refusal is deterministic (1T and 4T, both row orders: whichever row is compared
+# second is the one reported) and it is a property of the instance at its own extents
+# rather than of the contraction structure: with every extent set equal to 2 or 8 the two
+# declared orders agree on the same instance, 9, 10, 13 and 15 agree, and 11, 12, 14 and
+# 16-19 do not. The harness's comparison needs both rows' outputs to be finite - it
+# squares them, so a NaN there means one of the two orders returned `inf`/NaN at those
+# extents. The corpus's own runner generates zero-filled tensors and never compared
+# values, so the corpus's pipeline would not have caught it. A cell that *fails* is not a
+# declared skip in the toolkit's evidence contract (`timing_evidence.validate` accepts
+# only `ok` and `skipped`), so the only coherent declaration is one that omits the
+# instance; a page that claimed it would be claiming a measurement the harness refused.
+# See `docs/verify-refusal-str_mps-varying-inner-product-200.md`.
+EXCLUDED = {
+    "str_mps_varying_inner_product_200": (
+        "the harness's own cross-row verification refuses it (`MISMATCH(opt_flops) "
+        "rel_err=NaN`, exit 1) at every declared thread budget"
+    ),
+}
+
 REGIME = "cpueinsum"
 ROWS = ["opt_size", "opt_flops"]
 DTYPES = ["float64"]
@@ -58,7 +91,8 @@ DESCRIPTION = (
     "thing that varies across a row is the order cpueinsum executes. The declared identity "
     "shape is the numeric sentinel `n = 1`: each instance fixes its own extents, so there is "
     "no shape knob to sweep and the real operand geometry travels beside the sentinel in the "
-    "harness's own `case_m`/`case_n`/`case_k` columns."
+    "harness's own `case_m`/`case_n`/`case_k` columns. One corpus instance is deliberately "
+    "absent; the blind spots below name it and say why."
 )
 
 INVALIDATED_BY = [
@@ -87,6 +121,10 @@ WORKLOADS = dict(
         "measured revision translates them into cpueinsum's integer-label, SSA-order API."
     ),
     known_blind_spots=[
+        *[f"The corpus instance `{name}` is **not declared**: {reason}. It is therefore not "
+          f"measured, not skipped, and not part of this suite's coverage; the evidence is in "
+          f"`docs/verify-refusal-str_mps-varying-inner-product-200.md`."
+          for name, reason in sorted(EXCLUDED.items())],
         "The declared identity is the numeric sentinel `n = 1`: every instance has fixed "
         "extents, so the declaration grid has one shape and the real operand shapes are the "
         "harness's `case_m` (operand count), `case_n` (total input elements) and `case_k` "
@@ -137,13 +175,41 @@ def block_representer(dumper, data):
 yaml.add_representer(Block, block_representer, Dumper=yaml.SafeDumper)
 
 
+def corpus_families(instances_dir):
+    """The instance names the pinned corpus carries: the `name` field of every `*.json`."""
+    import json
+    names = [json.loads(p.read_text())["name"] for p in sorted(pathlib.Path(instances_dir).glob("*.json"))]
+    if not names:
+        sys.exit(f"ERROR: no *.json instance files in {instances_dir}")
+    return sorted(names)
+
+
+def declared_families(instances_dir):
+    """The corpus's instances minus the documented exclusions; the two must agree.
+
+    A corpus bump that renamed or dropped an excluded instance must fail here rather than
+    silently let it back into the declaration.
+    """
+    names = corpus_families(instances_dir)
+    unknown = sorted(set(EXCLUDED) - set(names))
+    if unknown:
+        sys.exit(f"ERROR: {instances_dir} has no instance named {unknown}; the documented "
+                 f"exclusion in this script refers to a corpus that has moved")
+    return [n for n in names if n not in EXCLUDED]
+
+
 def run_census(binary, thread, args, out_path):
-    """Run one untimed `verify` census pass and return the argv used."""
+    """Run one untimed `verify` census pass and return the argv used.
+
+    `--family` is the declaration's own instance list: the harness would otherwise verify
+    every instance the corpus holds, including the ones this campaign documents as excluded.
+    """
     cmd = [str(binary), "verify",
            "--threads", str(thread),
            "--n", args.n,
            "--batch", args.batch,
            "--dtype", ",".join(args.dtypes),
+           "--family", ",".join(args.families),
            "--rows", ",".join(args.rows),
            "--regime", REGIME,
            "--census-csv", str(out_path)]
@@ -252,15 +318,17 @@ def check_coverage(suite, rows):
 def header_comment(args, commands, families, dtypes, threads):
     lines = [
         "# GENERATED by scripts/gen_suite_from_census.py -- do not edit by hand.",
-        f"# Harness: {args.binary} (cpueinsum-bench entry point)   "
+        f"# Harness: {args.binary} (cpueinsum entry point)   "
         f"Source revision: {args.revision}",
         "# Census (untimed `verify`, at every declared thread budget):",
     ]
     for cmd in commands:
         lines.append(f"#   {shlex.join(cmd)}")
     lines += [
-        f"# Families: {len(families)} (one per corpus instance); groups: 1 ({REGIME}); "
-        f"dtypes: {', '.join(dtypes)}; threads: {', '.join(str(t) for t in threads)}.",
+        f"# Families: {len(families)} of the {len(families) + len(EXCLUDED)} instances of the "
+        f"pinned corpus; groups: 1 ({REGIME}); dtypes: {', '.join(dtypes)}; threads: "
+        f"{', '.join(str(t) for t in threads)}.",
+        *[f"# Not declared: {name} -- {reason}." for name, reason in sorted(EXCLUDED.items())],
         f"# The declared identity shape is the numeric sentinel `n = {args.n}`: see the suite's "
         f"description and blind spots.",
         "",
@@ -274,6 +342,8 @@ def main(argv=None):
                     help="the campaign's harness entry point (BIN_DIR/cpueinsum-bench)")
     ap.add_argument("--revision", required=True,
                     help="the measured revision the harness was built from (for the header)")
+    ap.add_argument("--instances", required=True, type=pathlib.Path,
+                    help="the pinned corpus's data/instances directory")
     ap.add_argument("--out", required=True, type=pathlib.Path,
                     help="the suite YAML to write")
     ap.add_argument("--rows", default=None, help="engine rows, comma separated")
@@ -288,6 +358,7 @@ def main(argv=None):
     if not args.binary.exists():
         sys.exit(f"ERROR: {args.binary} does not exist; build the harness first "
                  f"(scripts/build_for_cpueinsum_rev.sh)")
+    args.families = declared_families(args.instances)
     args.rows = [r for r in (args.rows.split(",") if args.rows else ROWS) if r]
     args.dtypes = list(dict.fromkeys(
         d for d in (args.dtypes.split(",") if args.dtypes else DTYPES) if d))
