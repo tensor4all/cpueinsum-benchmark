@@ -1,0 +1,9 @@
+pyyaml>=6
+# The shared timing-v2 toolkit, pinned to the revision in `pins/campaign-toolkit.rev`.
+# The two must name the same commit; keep them in step.
+#
+# `-e` is not decoration: a timing-v2 run records the toolkit's own commit in its
+# manifest and `campaign_toolkit.record_run` refuses to record unless the importable
+# package is an editable install of its own Git checkout. An installed wheel, or a
+# non-editable VCS requirement, has no usable source identity.
+-e git+https://github.com/tensor4all/campaign-toolkit@5723732017f79dc964d1a4916900784a94a841d5#egg=campaign-toolkit

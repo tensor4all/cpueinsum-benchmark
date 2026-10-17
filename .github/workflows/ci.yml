@@ -1,0 +1,44 @@
+name: ci
+on: [push, pull_request]
+# The measurement itself runs locally: `scripts/v2/record_run.py` builds, verifies and times
+# the pinned checkout on the host that owns the numbers, and refuses to publish otherwise, so
+# the harness's buildability is proven where it matters (and gated again in cpueinsum-rs's own
+# CI, which builds and tests `crates/cpueinsum-bench` on every PR there). What is left for this
+# repository is content: the declarations, every recorded manifest, and the generated index.
+# That is one small job on the smallest runner, and it is the only required check on `main`.
+jobs:
+  content:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python deps
+        run: python3 -m pip install --quiet -r requirements.txt
+      - name: Checkout the measured revision and the instance corpus
+        run: ./scripts/setup_extern_deps.sh
+      - name: Declarations are well formed
+        run: python3 -m campaign_toolkit.declarations
+      - name: The suite declares exactly the pinned corpus's instances
+        # The suite is generated from the harness's census over this corpus. A corpus bump that
+        # was not followed by a regeneration would leave the declaration naming instances the
+        # corpus no longer has (or missing ones it gained), and nothing else here would notice.
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, yaml
+          suite = yaml.safe_load(pathlib.Path('benchmarks/suites/cpueinsum.yaml').read_text())
+          declared = {f for families in suite['family_groups'].values() for f in families}
+          corpus = {
+              json.loads(p.read_text())['name']
+              for p in sorted(pathlib.Path('extern/tenferro-einsum-benchmark/data/instances').glob('*.json'))
+          }
+          assert declared == corpus, (
+              f'declared-only {sorted(declared - corpus)}, corpus-only {sorted(corpus - declared)}')
+          print(f'suite covers all {len(corpus)} instances of the pinned corpus')
+          PY
+      - name: Every recorded run manifest validates
+        run: |
+          shopt -s nullglob
+          files=(data/v2-results/*/*/*/run.yaml)
+          if [ ${#files[@]} -eq 0 ]; then echo "no runs recorded yet"; exit 0; fi
+          python3 scripts/v2/validate_run.py "${files[@]}"
+      - name: Index is current, required cells present
+        run: python3 scripts/v2/gen_index.py --check

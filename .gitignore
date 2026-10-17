@@ -1,0 +1,6 @@
+/target/
+**/target/
+extern/cpueinsum-rs
+extern/tenferro-einsum-benchmark
+__pycache__/
+.venv/

@@ -1,0 +1,11 @@
+# The measured revision: what `result-v2/INDEX.md` measures staleness against and
+# what `scripts/setup_extern_deps.sh` materialises as `extern/cpueinsum-rs`.
+#
+# `cpueinsum-rs` main `1030db3` ("cpueinsum-bench: the timing-v2 harness over the
+# einsum instance corpus (#27)") is the revision that first carries the harness this
+# campaign measures with: the `crates/cpueinsum-bench` crate (binary
+# `cpueinsum-bench`, the `run|verify|info` timing-v2 contract with a verification
+# census, chronological samples, rotated execution order and observed thread
+# readback). Its tree is identical to the reviewed branch head `3278a1a`; the merge
+# is what this pin names because that is what a reader can fetch by revision.
+1030db32c860db4f8d2d76f29d97ff91378dc0e8

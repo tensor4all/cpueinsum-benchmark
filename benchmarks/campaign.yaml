@@ -1,0 +1,110 @@
+schema_version: 1
+id: cpueinsum
+
+# The measured project. The harness (`crates/cpueinsum-bench`, binary
+# `cpueinsum-bench`) is part of cpueinsum-rs and is built out of the same checkout
+# as the library it measures, so the recorded commit describes both: a harness
+# built elsewhere could silently measure a different revision of the library than
+# the one it was written against.
+measured:
+  name: cpueinsum-rs
+  url: https://github.com/tensor4all/cpueinsum-rs
+  pin_file: pins/cpueinsum-rs.rev
+  extern_dir: extern/cpueinsum-rs
+  build_script: scripts/build_for_cpueinsum_rev.sh
+  # The name `scripts/build_for_cpueinsum_rev.sh` installs into `BIN_DIR`: the
+  # campaign's harness entry point, which is the built harness plus the binding to
+  # the pinned instance corpus. See `scripts/harness_launcher.sh` for why the
+  # binding lives there and not in the harness.
+  binary: cpueinsum-bench
+  # `build_for_cpueinsum_rev.sh` writes these into its output file; the recorder
+  # reads them back rather than inferring any of them.
+  pin_env:
+    rev: CPUEINSUM_REV
+    dirty: CPUEINSUM_DIRTY
+    dir: CPUEINSUM_DIR
+    features: BUILD_FEATURES
+    bin_dir: BIN_DIR
+  # The timing protocol lives in this repository (`benchmarks/scripts/`), copied
+  # from the toolkit: the measured checkout carries no benchmark protocol of its own.
+  protocol: campaign
+
+# One measured revision: the library commit. No upstream baseline and no vendor
+# library is recorded, so the manifest carries no vendor block at all.
+identities: [library]
+
+profiles_file: benchmarks/profiles.yaml
+suites_dir: benchmarks/suites
+data_dir: data/v2-results/cpueinsum
+result_dir: result-v2/cpueinsum
+
+# Engine row -> provider. The two rows are the corpus's own two declared contraction
+# orders, executed by cpueinsum in one binary, so both belong to the measured
+# provider: this campaign compares two schedules of the same library, not two
+# libraries.
+engines:
+  opt_size: cpueinsum
+  opt_flops: cpueinsum
+
+# No BLAS/LAPACK vendor arm is selected and no separately built baseline is linked:
+# the first record needs neither, and a page split on an arm that does not exist
+# would be a page with no second arm.
+vendor_providers: []
+external_providers: []
+
+# Thread-budget variables the harness sets from the row's thread count and reads
+# back before measuring. `RAYON_NUM_THREADS` is not cosmetic here: the harness
+# refuses a request above `rayon::max_num_threads()`, which an inherited value would
+# silently lower, so it must not reach the measured process.
+vendor_env:
+  - RAYON_NUM_THREADS
+  - OMP_NUM_THREADS
+
+# The columns the harness's timed CSV carries, as the report and the comparison read
+# them. `order` is present and empty: this corpus has one memory layout per instance,
+# so the column is declared (the evidence contract reads it) and never varies.
+csv_columns:
+  - regime
+  - family
+  - dtype
+  - order
+  - m
+  - n
+  - k
+  - batch
+  - row
+  - threads
+  - total_ms
+  - per_item_us
+  - status
+  - note
+  - samples_ms
+  - rayon_threads
+  - vendor_threads
+  - case_m
+  - case_n
+  - case_k
+
+page_name: "{library12}{version}{dirty}{timing}"
+
+default_invalidated_by:
+  - crates/cpueinsum-bench/**
+  - crates/cpueinsum/**
+  - Cargo.toml
+  - Cargo.lock
+
+# The frozen timing contract this campaign records under, declared here so it is a
+# property of the campaign rather than of whoever typed the command line. `aa` is a
+# whole number of rotation cycles over the two declared engine rows.
+timing:
+  version: 2
+  aa: 2
+  reps: 5
+  prime_ms: 250
+
+report:
+  library_label: cpueinsum-rs commit
+  provider_label: cpueinsum rows
+  harness_label: harness commit
+  index_generator: scripts/v2/gen_index.py
+  setup_script: scripts/setup_extern_deps.sh

@@ -1,0 +1,13 @@
+# The corpus revision: the `tenferro-einsum-benchmark` checkout whose
+# `data/instances/*.json` the harness loads. It is an external input, not a
+# dependency of the measured library, so `scripts/setup_extern_deps.sh`
+# materialises it as `extern/tenferro-einsum-benchmark` and nothing is vendored:
+# the instance files stay the source of truth for shapes, equations and the two
+# declared contraction orders.
+#
+# There is no release to pin to, so this names the corpus's `main` at the revision
+# the campaign was built against: 14 instances, one JSON file per problem, each
+# carrying `name`, `format_string`, `shapes`, `dtype` and `paths.{opt_size,opt_flops}`.
+# A corpus change is a different corpus, and the page records this revision in its
+# own section so a number is never read against the wrong instance set.
+753c0b3e8d9748115f3e921956283e64d8e0cf0f
