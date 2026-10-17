@@ -1,0 +1,7 @@
+provider=cpueinsum
+provider_version=0.2.4
+threads=1
+threads_effective=1
+tblis=
+harness_artifact=/home/shinaoka/projects/tensor4all/cpueinsum-benchmark/target/cpueinsum-rev/1030db32c860/bin/../release/cpueinsum-bench
+harness_artifact_sha256=08d31475477c5fe05386b610097da42a4fd4452c14d6b76f52ccaa1ddd1275d9
