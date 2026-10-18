@@ -59,11 +59,11 @@ artifact="$target/$subdir/cpueinsum-bench"
 [[ -x "$artifact" ]] || { echo "ERROR: $artifact was not built" >&2; exit 1; }
 
 # The entry point the recorder executes, and the revision it is keyed to. Installed
-# verbatim, so the hash the manifest records is the committed launcher's, not a
+# so the hash the manifest records is the artifact's own:
 # generated file's.
 bin_dir="$target/bin"
 mkdir -p "$bin_dir"
-install -m 755 "$PROJECT_DIR/scripts/harness_launcher.sh" "$bin_dir/cpueinsum-bench"
+install -m 755 "$artifact" "$bin_dir/cpueinsum-bench"
 
 {
     printf 'CPUEINSUM_REV=%q\n' "$rev"

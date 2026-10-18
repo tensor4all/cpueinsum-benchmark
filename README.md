@@ -70,12 +70,11 @@ two declared engine rows — and at least 250 ms of untimed priming per cell, at
 CPU 4 and 4 threads on CPUs 4-7 of the `zen5-cpu` profile. Cells are recorded under a
 rotating engine order and the raw per-call samples are kept in the run directory.
 
-`BIN_DIR/cpueinsum-bench` is this repository's entry point
-([`scripts/harness_launcher.sh`](scripts/harness_launcher.sh)), not the cargo artifact: the
-harness requires the instance corpus on its command line and the shared recorder has no
-field for a harness input path, so the campaign binds the pinned harness to the pinned
-corpus. The manifest's `binary.sha256` is therefore the launcher's hash, and the launcher
-prints the artifact it dispatches to on `info` (kept in the run's `binary-info.txt`).
+`BIN_DIR/cpueinsum-bench` is the cargo artifact itself. The harness requires the instance
+corpus on its command line, and the descriptor supplies it as
+`measured.harness_args` (`--instances extern/tenferro-einsum-benchmark/data/instances`),
+which the recorder appends to every `verify` and `run` invocation. So the manifest's
+`binary.sha256` is the hash of the binary that was measured.
 
 ## What this repository is not
 

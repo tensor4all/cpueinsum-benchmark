@@ -12,11 +12,13 @@ measured:
   pin_file: pins/cpueinsum-rs.rev
   extern_dir: extern/cpueinsum-rs
   build_script: scripts/build_for_cpueinsum_rev.sh
-  # The name `scripts/build_for_cpueinsum_rev.sh` installs into `BIN_DIR`: the
-  # campaign's harness entry point, which is the built harness plus the binding to
-  # the pinned instance corpus. See `scripts/harness_launcher.sh` for why the
-  # binding lives there and not in the harness.
+  # The built harness, installed into `BIN_DIR` by `scripts/build_for_cpueinsum_rev.sh`.
   binary: cpueinsum-bench
+  # The harness needs its corpus on the command line and the recorder has no way to
+  # infer it; `harness_args` is the toolkit's field for exactly this (appended after
+  # the subcommand of every `verify`/`run` invocation, never to `info`). The path is
+  # relative to the campaign root, which is where the documented record command runs.
+  harness_args: ["--instances", "extern/tenferro-einsum-benchmark/data/instances"]
   # `build_for_cpueinsum_rev.sh` writes these into its output file; the recorder
   # reads them back rather than inferring any of them.
   pin_env:
