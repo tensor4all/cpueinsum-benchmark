@@ -27,23 +27,20 @@ The workload is not compiled into the harness. `cpueinsum-bench` loads the
 refuses to run without one (`crates/cpueinsum-bench/src/main.rs:263-266`:
 ``--instances DIR is required``). The shared recorder drives a harness through one fixed
 command line and has no field for a harness input path
-(`campaign_toolkit/record_run.py:691-701` for the verify pass, `:716-729` for the timing
-pass), so the binding between the pinned harness and the pinned corpus belongs to this
-repository:
+(`campaign_toolkit/record_run.py`), so the descriptor supplies the corpus path as
+`measured.harness_args`, which the recorder appends to every `verify` and `run` invocation
+(never to `info`). That is what binds the pinned harness to the pinned corpus:
 
 * `scripts/setup_extern_deps.sh` materialises `extern/cpueinsum-rs` and
   `extern/tenferro-einsum-benchmark` at the revisions in `pins/`;
 * `scripts/build_for_cpueinsum_rev.sh` builds the harness out of the measured checkout and
-  installs `scripts/harness_launcher.sh`, verbatim, as `BIN_DIR/cpueinsum-bench` next to the
-  artifact;
-* the launcher is what the descriptor's `measured.binary` names, so the bytes the recorder
-  executes (and hashes into `binary.sha256`) are a committed file that adds exactly one
-  thing: `--instances <corpus>` for `run` and `verify`.
+  installs the artifact as `BIN_DIR/cpueinsum-bench`;
+* `measured.binary` names that artifact, so `binary.sha256` is the hash of the binary that
+  was measured, and `measured.harness_args` adds `--instances <corpus>` where the harness
+  needs it.
 
-Read `scripts/harness_launcher.sh` before changing anything about how the harness is
-invoked. Do not vendor the corpus, and do not edit the measured repository or the toolkit
-to paper over this: if the toolkit grows a way to pass a harness input path, delete the
-launcher and name the cargo artifact instead.
+Do not vendor the corpus, and do not edit the measured repository to paper over an input
+path the descriptor can now declare.
 
 One corpus instance is **not declared**: `str_mps_varying_inner_product_200` is refused by
 the harness's own cross-row verification at every thread budget (`MISMATCH(opt_flops)

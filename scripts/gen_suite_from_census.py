@@ -20,9 +20,9 @@ Usage:
         --revision 1030db32c860db4f8d2d76f29d97ff91378dc0e8 \
         --out benchmarks/suites/cpueinsum.yaml
 
-`--binary` is the campaign's harness entry point (`scripts/harness_launcher.sh` as
-installed by `scripts/build_for_cpueinsum_rev.sh`), not the cargo artifact, because
-that is what the recorder executes and what binds the harness to the pinned corpus.
+`--binary` is the built harness artifact (`BIN_DIR/cpueinsum-bench` in the descriptor).
+The generator runs the same census the recorder will, and passes `--instances` itself;
+at record time the descriptor's `measured.harness_args` supplies it instead.
 
 The toolkit must be importable (it is pinned in `requirements.txt`); the declaration
 check is the same `campaign_toolkit.timing_evidence.expected_cells` the recorder and
