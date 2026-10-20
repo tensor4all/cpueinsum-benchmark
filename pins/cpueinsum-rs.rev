@@ -10,4 +10,9 @@
 # is what this pin names because that is what a reader can fetch by revision.
 # `v0.2.1` from 2026-10-19: the pin moves from 1030db32 to the released tag, the version
 # the campaign's pages should describe.
-5ad1257b786e9da05061f7a0e46ca0284a6ad9f4
+# `main` (5f8820f) from 2026-10-19: the newest revision that carries the harness. The
+# last release tag `v0.2.1` (5ad1257) is an ancestor of the previous pin `1030db32` and
+# predates `crates/cpueinsum-bench`, so pinning it would remove the harness the campaign
+# builds out of the measured checkout. `main` is five commits past the old pin and still
+# carries it.
+5f8820f4f8200522939511afbee26c3ddc7ad934
