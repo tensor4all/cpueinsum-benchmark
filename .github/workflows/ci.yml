@@ -36,8 +36,8 @@ jobs:
               assert declared == expected, (
                   f"{suite['id']}: declared but not expected {sorted(declared - expected)}, "
                   f'expected but not declared {sorted(expected - declared)}')
-          print(f"{len(suites)} suite(s) declare the pinned corpus's {len(expected)} instances; '
-                f'not declared (with a reason in gen_suite_from_census.py): {sorted(EXCLUDED)}")
+          print(f"{len(suites)} suite(s) declare the pinned corpus's {len(expected)} instances; "
+                f"not declared (with a reason in gen_suite_from_census.py): {sorted(EXCLUDED)}")
           PY
       - name: Every recorded run manifest validates
         run: |
