@@ -12,4 +12,4 @@
 # observer's recorded affinity in `threads.observer`, the ancestor pin check that
 # refuses an agent still using a measured core, and the shared merge procedure in
 # `docs/merge-procedure.md`.
-7e4d8751f5fe16d71e472e7b07128baea72511a4
+0646db251d3b2df5941f9a2c82eb95253453416d
