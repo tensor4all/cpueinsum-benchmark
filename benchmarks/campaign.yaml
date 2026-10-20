@@ -105,6 +105,7 @@ timing:
   prime_ms: 250
 
 report:
+  verdicts: false
   library_label: cpueinsum-rs commit
   provider_label: cpueinsum rows
   harness_label: harness commit
