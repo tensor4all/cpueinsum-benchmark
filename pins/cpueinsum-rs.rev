@@ -15,4 +15,4 @@
 # predates `crates/cpueinsum-bench`, so pinning it would remove the harness the campaign
 # builds out of the measured checkout. `main` is five commits past the old pin and still
 # carries it.
-5f8820f4f8200522939511afbee26c3ddc7ad934
+1620fa86da59cefb652053e2b9012ec08dbfd5a0
