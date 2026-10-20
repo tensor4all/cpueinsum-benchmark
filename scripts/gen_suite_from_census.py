@@ -212,7 +212,11 @@ def run_census(binary, thread, args, out_path):
            "--family", ",".join(args.families),
            "--rows", ",".join(args.rows),
            "--regime", REGIME,
-           "--census-csv", str(out_path)]
+           "--census-csv", str(out_path),
+           # A declaration with one engine row has no sibling to compare against, so its census
+           # needs the other arm's diagnostics. Arguments here reach `verify` only: a suite
+           # generated from a census is still measured without them.
+           *(args.verify_args or [])]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         sys.exit(f"ERROR: census failed at {thread}T (exit {proc.returncode})\n"
@@ -351,6 +355,9 @@ def main(argv=None):
     ap.add_argument("--n", default=N, help="the declared size spec")
     ap.add_argument("--batch", default=BATCH, help="the declared batch")
     ap.add_argument("--threads", default=None, help="thread budgets, comma separated")
+    ap.add_argument("--verify-args", nargs="*", default=[],
+                    help="extra arguments for the census `verify` (for example "
+                         "--reference-csv PATH when the declaration carries a single row)")
     ap.add_argument("--workdir", default=None, type=pathlib.Path,
                     help="where the temporary census files go (default: target/census/cpueinsum)")
     args = ap.parse_args(argv)
