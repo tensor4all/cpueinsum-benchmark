@@ -16,6 +16,7 @@ rather than being implied by the other arm's page.
 
 | suite | profile | vendor | revision | version | date | coverage | status | page |
 |---|---|---|---|---|---|---|---|---|
+| `cpueinsum` | `zen5-cpu` (optional) | - | `5f8820f4f820` | - | 2026-10-20 | full | 2 behind | [result-v2/cpueinsum/zen5-cpu/cpueinsum/5f8820f4f820-timing-v2.md](zen5-cpu/cpueinsum/5f8820f4f820-timing-v2.md) |
 | `einsum-opt_flops` | `zen5-cpu` (optional) | - | `1620fa86da59` | - | 2026-10-20 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md) |
 | `einsum-opt_size` | `zen5-cpu` (optional) | - | `1620fa86da59` | - | 2026-10-20 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md) |
 
@@ -33,3 +34,5 @@ partial or declaration-changed page never displaces a full-coverage one.
 |---|---|---|---|---|---|---|---|---|
 | `einsum-opt_size` | `zen5-cpu` | - | `1620fa86da59` | - | 2026-10-20 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md) |
 | `einsum-opt_flops` | `zen5-cpu` | - | `1620fa86da59` | - | 2026-10-20 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md) |
+| `cpueinsum` | `zen5-cpu` | - | `5f8820f4f820` | - | 2026-10-20 | full | 2 behind | [result-v2/cpueinsum/zen5-cpu/cpueinsum/5f8820f4f820-timing-v2.md](zen5-cpu/cpueinsum/5f8820f4f820-timing-v2.md) |
+| `cpueinsum` | `zen5-cpu` | - | `1030db32c860` | - | 2026-10-18 | full | 7 behind | [result-v2/cpueinsum/zen5-cpu/cpueinsum/1030db32c860-timing-v2.md](zen5-cpu/cpueinsum/1030db32c860-timing-v2.md) |
