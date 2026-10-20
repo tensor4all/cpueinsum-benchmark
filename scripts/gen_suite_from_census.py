@@ -212,11 +212,12 @@ def run_census(binary, thread, args, out_path):
            "--family", ",".join(args.families),
            "--rows", ",".join(args.rows),
            "--regime", REGIME,
+           "--instances", str(args.instances),
            "--census-csv", str(out_path),
            # A declaration with one engine row has no sibling to compare against, so its census
            # needs the other arm's diagnostics. Arguments here reach `verify` only: a suite
            # generated from a census is still measured without them.
-           *(args.verify_args or [])]
+           *[tok for chunk in (args.verify_args or []) for tok in chunk.split()]]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         sys.exit(f"ERROR: census failed at {thread}T (exit {proc.returncode})\n"
@@ -355,7 +356,7 @@ def main(argv=None):
     ap.add_argument("--n", default=N, help="the declared size spec")
     ap.add_argument("--batch", default=BATCH, help="the declared batch")
     ap.add_argument("--threads", default=None, help="thread budgets, comma separated")
-    ap.add_argument("--verify-args", nargs="*", default=[],
+    ap.add_argument("--verify-args", action="append", default=[],
                     help="extra arguments for the census `verify` (for example "
                          "--reference-csv PATH when the declaration carries a single row)")
     ap.add_argument("--workdir", default=None, type=pathlib.Path,
@@ -389,6 +390,11 @@ def main(argv=None):
     suite, families, dtypes, threads = build_suite(args, rows)
     expected = check_coverage(suite, rows)
     text = header_comment(args, commands, families, dtypes, threads)
+    # The reference the census was checked against is part of the declaration: a run of this suite
+    # verifies against the same file, and a suite whose verify_args were dropped would refuse to
+    # record at all (its single row has no sibling) or, worse, be recorded unverified.
+    if args.verify_args:
+        suite["verify_args"] = [tok for chunk in args.verify_args for tok in chunk.split()]
     text += yaml.safe_dump(suite, sort_keys=False, default_flow_style=False,
                            allow_unicode=True, width=100)
     args.out.parent.mkdir(parents=True, exist_ok=True)
