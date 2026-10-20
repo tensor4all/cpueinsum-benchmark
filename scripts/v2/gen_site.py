@@ -5,7 +5,7 @@ import sys
 
 from campaign_toolkit import site
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 if __name__ == "__main__":
     sys.exit(site.main(["--root", str(ROOT), *sys.argv[1:]]))
