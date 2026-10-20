@@ -1,5 +1,12 @@
 # Agent Workflow
 
+Before acting, read the shared benchmark rules, starting from
+`https://github.com/tensor4all/tensor4all-agent-rules/blob/main/rules/benchmark/measurement.md`
+(bind yourself off the measured cores, one measurement at a time, a discarded run stays
+discarded) and `.../rules/benchmark/index.md` for the rest (evidence, tables). Fallback:
+`../tensor4all-agent-rules/rules/benchmark/`. Load only the files your task touches.
+
+
 ## Source of truth for numbers
 
 Tracked result pages live under `result-v2/<suite>/<profile>/<revision>.md`, one page per
@@ -79,10 +86,12 @@ checks a request against, so an inherited value would turn a declared budget int
 
 Correctness precedes timing. `cpueinsum-bench verify` must report a clean grid for every
 population and thread budget before any timing pass; the recorder enforces this and publishes
-nothing otherwise. Verification is a cross-row comparison: the two declared contraction orders
-are checked against each other on the same deterministic inputs, plus the harness's refusals of
-a single-row selection and of a selection with no second independent result. There is no third
-implementation behind it; the page must not imply one.
+nothing otherwise. A suite here carries **one** engine row, so there is no sibling to compare
+against: it is checked against the **OMEinsum.jl arm** (`data/reference/omeinsum-<strategy>.csv`,
+produced by `scripts/julia/einsum_runner.jl`), and the reference reaches the verify and the census
+only, through the suite's `verify_args` - a timing invocation never sees it. A suite whose
+reference is missing fails rather than passing quietly, and a page must not claim a
+cross-implementation check for a cell the reference does not cover.
 
 ## Coverage is data, not an apology
 
