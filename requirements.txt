@@ -6,4 +6,4 @@ pyyaml>=6
 # manifest and `campaign_toolkit.record_run` refuses to record unless the importable
 # package is an editable install of its own Git checkout. An installed wheel, or a
 # non-editable VCS requirement, has no usable source identity.
--e git+https://github.com/tensor4all/campaign-toolkit@7f244ab1f393d6a32489685e4449767a6ef19670#egg=campaign-toolkit
+-e git+https://github.com/tensor4all/campaign-toolkit@7e4d8751f5fe16d71e472e7b07128baea72511a4#egg=campaign-toolkit

@@ -1,0 +1,32 @@
+{
+  "pin": {
+    "CPUEINSUM_REV": "1620fa86da59cefb652053e2b9012ec08dbfd5a0",
+    "CPUEINSUM_DIRTY": "false",
+    "CPUEINSUM_DIR": "/home/shinaoka/projects/tensor4all/cpueinsum-benchmark/extern/cpueinsum-rs",
+    "BIN_DIR": "/home/shinaoka/projects/tensor4all/cpueinsum-benchmark/target/cpueinsum-rev/1620fa86da59/bin",
+    "BUILD_FEATURES": ""
+  },
+  "admission": {
+    "harness": {
+      "commit": "0ddd9d3cda67e807611aba5ce2ef1fd3314aaeb1",
+      "dirty": false
+    },
+    "toolkit": {
+      "commit": "7f244ab1f393d6a32489685e4449767a6ef19670",
+      "dirty": false,
+      "measured_path": "/home/shinaoka/projects/tensor4all/campaign-toolkit"
+    },
+    "argv": [
+      "scripts/v2/record_run.py",
+      "zen5-cpu",
+      "einsum-opt_size"
+    ]
+  },
+  "binary": {
+    "path": "/home/shinaoka/projects/tensor4all/cpueinsum-benchmark/target/cpueinsum-rev/1620fa86da59/bin/cpueinsum-bench",
+    "sha256": "6599cc4030810368a6b7964b054b9e9f9242fae601d2e87abf1635d1f5940523"
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)\nrelease: 1.99.0\ncommit-hash: 5f94df4789f005f9a352888e8355ffc645b7ed0e\ncommit-date: 2026-08-27\nhost: x86_64-unknown-linux-gnu\nlibgit2: 1.9.6 (sys:0.21.0 vendored)\nlibcurl: 8.21.0-DEV (sys:0.4.90+curl-8.21.0 vendored ssl:OpenSSL/3.6.3)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Ubuntu 24.4.0 (noble) [64-bit]\n",
+  "env": {}
+}
