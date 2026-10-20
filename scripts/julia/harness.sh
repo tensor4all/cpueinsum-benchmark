@@ -98,7 +98,12 @@ case "$command" in
                 rm -f "$diag_tmp"
             fi
         done
-        echo "all comparisons within tolerance"
+        # A verify here establishes that the arm runs and writes its diagnostics; it does not compare
+        # them with anything, because the reference lives in another arm. Saying "tolerance" would
+        # claim a comparison this script never performed, so it says what it did.
+        if [ "$command" = "verify" ]; then
+            echo "verify: diagnostics written for $rows; the campaign compares them with the other arm"
+        fi
         ;;
     *)
         echo "harness.sh: expected info, verify or run, got $command" >&2
