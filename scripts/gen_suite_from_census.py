@@ -393,6 +393,10 @@ def main(argv=None):
     # The reference the census was checked against is part of the declaration: a run of this suite
     # verifies against the same file, and a suite whose verify_args were dropped would refuse to
     # record at all (its single row has no sibling) or, worse, be recorded unverified.
+    # One campaign, several suites: a declaration is named after the file it lives in, and the
+    # validator finds a run's declaration by that id. A suite called `einsum-opt_size` that still
+    # carried the campaign's id would make every run of it unresolvable.
+    suite["id"] = pathlib.Path(args.out).stem
     if args.verify_args:
         suite["verify_args"] = [tok for chunk in args.verify_args for tok in chunk.split()]
     text += yaml.safe_dump(suite, sort_keys=False, default_flow_style=False,

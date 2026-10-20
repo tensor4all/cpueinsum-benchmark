@@ -7,7 +7,7 @@
 # Not declared: str_mps_varying_inner_product_200 -- the harness's own cross-row verification refuses it (`MISMATCH(opt_flops) rel_err=NaN`, exit 1) at every declared thread budget.
 # The declared identity shape is the numeric sentinel `n = 1`: see the suite's description and blind spots.
 schema_version: 1
-id: cpueinsum
+id: einsum-opt_size
 description: |-
   The `tenferro-einsum-benchmark` instance corpus, measured by `cpueinsum-bench` out of the pinned `cpueinsum-rs` checkout. One family per instance and one engine row per contraction order the corpus declares for it (`opt_size`, `opt_flops`), so the only thing that varies across a row is the order cpueinsum executes. The declared identity shape is the numeric sentinel `n = 1`: each instance fixes its own extents, so there is no shape knob to sweep and the real operand geometry travels beside the sentinel in the harness's own `case_m`/`case_n`/`case_k` columns. One corpus instance is deliberately absent; the blind spots below name it and say why.
 invalidated_by:
