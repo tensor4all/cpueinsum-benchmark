@@ -1,0 +1,39 @@
+name: pages
+
+# The recorded pages are Markdown, which a browser serves as text; this publishes the
+# generated landing page under `result-v2/cpueinsum` so the campaign is browsable without checking
+# the repository out.
+on:
+  push:
+    branches: [main]
+    paths: ['result-v2/cpueinsum/**', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the landing page exists
+        run: |
+          test -f result-v2/cpueinsum/index.html || {
+            echo "result-v2/cpueinsum/index.html is missing; run the campaign's gen_site.py"
+            exit 1
+          }
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: result-v2/cpueinsum
+      - uses: actions/deploy-pages@v4
