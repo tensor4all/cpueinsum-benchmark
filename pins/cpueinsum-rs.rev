@@ -8,4 +8,6 @@
 # census, chronological samples, rotated execution order and observed thread
 # readback). Its tree is identical to the reviewed branch head `3278a1a`; the merge
 # is what this pin names because that is what a reader can fetch by revision.
-1030db32c860db4f8d2d76f29d97ff91378dc0e8
+# `v0.2.1` from 2026-10-19: the pin moves from 1030db32 to the released tag, the version
+# the campaign's pages should describe.
+5ad1257b786e9da05061f7a0e46ca0284a6ad9f4
