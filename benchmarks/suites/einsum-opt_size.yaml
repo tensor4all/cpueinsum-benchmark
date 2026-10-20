@@ -97,7 +97,3 @@ engines_doc:
 verify_args:
 - --reference-csv
 - data/reference/omeinsum-opt_size.csv
-# The verify recomputes every case; the numbers do not depend on the budget, so it is checked at
-# one budget and both are still timed.
-verify:
-  threads: [1]
