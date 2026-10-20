@@ -26,16 +26,18 @@ jobs:
           import json, pathlib, sys, yaml
           sys.path.insert(0, 'scripts')
           from gen_suite_from_census import EXCLUDED
-          suite = yaml.safe_load(pathlib.Path('benchmarks/suites/cpueinsum.yaml').read_text())
-          declared = {f for families in suite['family_groups'].values() for f in families}
+          suites = [yaml.safe_load(p.read_text()) for p in sorted(pathlib.Path('benchmarks/suites').glob('*.yaml'))]
+          assert suites, 'no suites declared'
           corpus = {json.loads(p.read_text())['name'] for p in
                     sorted(pathlib.Path('extern/tenferro-einsum-benchmark/data/instances').glob('*.json'))}
           expected = corpus - set(EXCLUDED)
-          assert declared == expected, (
-              f'declared but not expected {sorted(declared - expected)}, '
-              f'expected but not declared {sorted(expected - declared)}')
-          print(f'suite declares {len(declared)} of the pinned corpus\'s {len(corpus)} instances; '
-                f'not declared (with a reason in gen_suite_from_census.py): {sorted(EXCLUDED)}')
+          for suite in suites:
+              declared = {f for families in suite['family_groups'].values() for f in families}
+              assert declared == expected, (
+                  f"{suite['id']}: declared but not expected {sorted(declared - expected)}, "
+                  f'expected but not declared {sorted(expected - declared)}')
+          print(f"{len(suites)} suite(s) declare the pinned corpus's {len(expected)} instances; '
+                f'not declared (with a reason in gen_suite_from_census.py): {sorted(EXCLUDED)}")
           PY
       - name: Every recorded run manifest validates
         run: |
