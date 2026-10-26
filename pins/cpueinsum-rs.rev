@@ -15,4 +15,6 @@
 # predates `crates/cpueinsum-bench`, so pinning it would remove the harness the campaign
 # builds out of the measured checkout. `main` is five commits past the old pin and still
 # carries it.
-1620fa86da59cefb652053e2b9012ec08dbfd5a0
+# `v0.6.0` (938a25f) from 2026-10-27: the release on crates.io deps (tcontract 0.6, threadteam 0.1,
+# strided 0.8); main is the same commit. The harness carries over unchanged in shape.
+938a25fba9e76fb17dff6086db59e592f918ec22
