@@ -1,12 +1,13 @@
 name: pages
 
-# The recorded pages are Markdown, which a browser serves as text; this publishes the
+# The landing page is generated here on every deploy (it is not committed), so the deployed
+# artifact always reflects main. The recorded pages are Markdown, which a browser serves as text; this publishes the
 # generated landing page under `result-v2/cpueinsum` so the campaign is browsable without checking
 # the repository out.
 on:
   push:
     branches: [main]
-    paths: ['result-v2/cpueinsum/**', '.github/workflows/pages.yml']
+    paths: ['result-v2/**', 'pins/**', 'benchmarks/**', requirements.txt, 'scripts/v2/gen_site.py', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -26,12 +27,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check the landing page exists
-        run: |
-          test -f result-v2/cpueinsum/index.html || {
-            echo "result-v2/cpueinsum/index.html is missing; run the campaign's gen_site.py"
-            exit 1
-          }
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the pinned toolkit
+        run: python -m pip install --quiet -r requirements.txt
+      - name: Write the landing page
+        # generated on every deploy from the committed result and pins; not committed
+        run: python scripts/v2/gen_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -9,4 +9,3 @@
 set -eu
 taskset -c 0-3,12-15 python3 scripts/v2/record_run.py zen5-cpu einsum-opt_size
 taskset -c 0-3,12-15 python3 scripts/v2/record_run.py zen5-cpu einsum-opt_flops
-python3 scripts/v2/gen_site.py
