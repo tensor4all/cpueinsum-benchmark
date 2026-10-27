@@ -43,7 +43,7 @@ the same checkout as the library it measures, so the recorded commit describes b
 
 The campaign owns its declarations, its pins and its launcher; the machinery is the shared
 [`campaign-toolkit`](https://github.com/tensor4all/campaign-toolkit), pinned in
-`requirements.txt` and in `pins/campaign-toolkit.rev`.
+`requirements.txt`, the one toolkit pin.
 
 ```bash
 ./scripts/setup_extern_deps.sh      # clone cpueinsum-rs and the instance corpus, at their pins
