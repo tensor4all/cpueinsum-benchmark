@@ -18,7 +18,7 @@ Usage:
         --binary target/cpueinsum-rev/1030db32c860/bin/cpueinsum-bench \
         --instances extern/tenferro-einsum-benchmark/data/instances \
         --revision 1030db32c860db4f8d2d76f29d97ff91378dc0e8 \
-        --out benchmarks/suites/cpueinsum.yaml
+        --out benchmarks/suites/<suite>.yaml
 
 `--binary` is the built harness artifact (`BIN_DIR/cpueinsum-bench` in the descriptor).
 The generator runs the same census the recorder will, and passes `--instances` itself;

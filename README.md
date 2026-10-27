@@ -7,7 +7,7 @@ visible rather than implied.
 | | |
 |---|---|
 | Latest results | [`result-v2/cpueinsum/INDEX.md`](result-v2/cpueinsum/INDEX.md) — generated table of contents over the per-revision pages |
-| Declaration | [`benchmarks/suites/cpueinsum.yaml`](benchmarks/suites/cpueinsum.yaml) — the frozen suite, generated from the pinned harness's own census |
+| Declarations | [`benchmarks/suites/`](benchmarks/suites/) — the frozen `einsum-opt_size` and `einsum-opt_flops` suites, generated from the pinned harness's own census |
 | Reference revision | [`pins/cpueinsum-rs.rev`](pins/cpueinsum-rs.rev) — what `status` is measured against |
 | Agent workflow | [`AGENTS.md`](AGENTS.md) — how a run is taken, and what must not be worked around |
 
@@ -55,10 +55,10 @@ python3 scripts/gen_suite_from_census.py \
     --binary target/cpueinsum-rev/1030db32c860/bin/cpueinsum-bench \
     --instances extern/tenferro-einsum-benchmark/data/instances \
     --revision "$(git -C extern/cpueinsum-rs rev-parse HEAD)" \
-    --out benchmarks/suites/cpueinsum.yaml
+    --out benchmarks/suites/<suite>.yaml
 
 # record one cell: build, verify, measure, validate, report, publish, reindex
-python3 scripts/v2/record_run.py zen5-cpu cpueinsum
+python3 scripts/v2/record_run.py zen5-cpu einsum-opt_size
 
 # check that the committed index is what the generator produces
 python3 scripts/v2/gen_index.py --check
