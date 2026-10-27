@@ -1,5 +1,0 @@
-provider=cpueinsum
-provider_version=0.2.4
-threads=1
-threads_effective=1
-tblis=
