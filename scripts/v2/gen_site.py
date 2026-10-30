@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Write `result/index.html`; see `campaign_toolkit.site`. Args pass through."""
+"""Write the site under `result-v2/cpueinsum/` (landing page, history, HTML pages and the charts
+the descriptor declares); see `campaign_toolkit.site`. Args pass through."""
 import pathlib
 import sys
 

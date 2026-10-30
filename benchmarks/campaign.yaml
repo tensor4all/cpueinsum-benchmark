@@ -111,3 +111,21 @@ report:
   harness_label: harness commit
   index_generator: scripts/v2/gen_index.py
   setup_script: scripts/setup_extern_deps.sh
+
+# The landing page's per-case charts: one dot per corpus instance, per suite, on a log time
+# axis (the instances share no size axis).
+figures:
+  cases: [einsum-opt_flops, einsum-opt_size]
+
+# Representative instances followed across pins (tensor4all-meta#76 D4): the largest and the
+# median of the corpus's 13 declared instances by 1T time, on the opt_flops suite, at 1T and
+# the suite's largest budget.
+trend:
+  - suite: einsum-opt_flops
+    case: cpueinsum:gm_queen5_5_3.wcsp/n1/b1 float64
+    engines: [opt_flops]
+    threads: [1, 4]
+  - suite: einsum-opt_flops
+    case: cpueinsum:lm_batch_likelihood_sentence_4_4d/n1/b1 float64
+    engines: [opt_flops]
+    threads: [1, 4]

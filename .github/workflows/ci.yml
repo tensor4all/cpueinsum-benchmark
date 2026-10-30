@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # campaign-check-generated compares against origin/main
       - name: Python deps
         run: python3 -m pip install --quiet -r requirements.txt
       - name: Checkout the measured revision and the instance corpus
@@ -48,3 +50,9 @@ jobs:
           python3 scripts/v2/validate_run.py "${files[@]}"
       - name: Index is current, required cells present
         run: python3 scripts/v2/gen_index.py --check
+      - name: Nothing generated was edited by hand
+        # every published page is its run's report.md byte for byte, and the runs changed against
+        # main regenerate their report.md from their CSVs (the index is checked by the step above)
+        run: campaign-check-generated --base origin/main --no-index
+      - name: Pins are the stack's
+        run: campaign-sync-pins --check --repo cpueinsum-benchmark

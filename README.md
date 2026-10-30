@@ -6,7 +6,8 @@ visible rather than implied.
 
 | | |
 |---|---|
-| Latest results | [`result-v2/cpueinsum/INDEX.md`](result-v2/cpueinsum/INDEX.md) — generated table of contents over the per-revision pages |
+| Results site | [tensor4all.org/cpueinsum-benchmark](https://tensor4all.org/cpueinsum-benchmark/) — the pages, per-instance charts, trend charts and history |
+| Latest results | [`result-v2/cpueinsum/INDEX.md`](result-v2/cpueinsum/INDEX.md) — generated; older pages in [`HISTORY.md`](result-v2/cpueinsum/HISTORY.md) |
 | Declarations | [`benchmarks/suites/`](benchmarks/suites/) — the frozen `einsum-opt_size` and `einsum-opt_flops` suites, generated from the pinned harness's own census |
 | Reference revision | [`pins/cpueinsum-rs.rev`](pins/cpueinsum-rs.rev) — what `status` is measured against |
 | Agent workflow | [`AGENTS.md`](AGENTS.md) — how a run is taken, and what must not be worked around |
