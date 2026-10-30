@@ -11,3 +11,7 @@
 schema_version: 1
 profiles:
   - zen5-cpu
+  # The measurement host (tensor4all-meta#76 D5), resolved against
+  # `campaign_toolkit/profiles/zen2-cpu.yaml`. Every suite lists it as optional: it is
+  # measured when the stack's versions move, not on the weekly schedule.
+  - zen2-cpu

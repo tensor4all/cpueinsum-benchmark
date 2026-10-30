@@ -82,7 +82,7 @@ BATCH = "1"
 THREADS = [1, 4]
 CPU_SETS = ["4", "4-7"]
 STALE_AFTER = 20
-OPTIONAL_PROFILES = ["zen5-cpu"]
+OPTIONAL_PROFILES = ["zen5-cpu", "zen2-cpu"]
 
 DESCRIPTION = (
     "The `tenferro-einsum-benchmark` instance corpus, measured by `cpueinsum-bench` out of "

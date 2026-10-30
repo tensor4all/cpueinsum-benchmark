@@ -19,7 +19,9 @@ rather than being implied by the other arm's page.
 | suite | profile | vendor | revision | version | date | coverage | status | page |
 |---|---|---|---|---|---|---|---|---|
 | `einsum-opt_flops` | `zen5-cpu` (optional) | - | `938a25fba9e7` | - | 2026-10-27 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/938a25fba9e7-timing-v2.md](zen5-cpu/einsum-opt_flops/938a25fba9e7-timing-v2.md) |
+| `einsum-opt_flops` | `zen2-cpu` (optional) | - | - | - | - | - | missing | - |
 | `einsum-opt_size` | `zen5-cpu` (optional) | - | `938a25fba9e7` | - | 2026-10-27 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/938a25fba9e7-timing-v2.md](zen5-cpu/einsum-opt_size/938a25fba9e7-timing-v2.md) |
+| `einsum-opt_size` | `zen2-cpu` (optional) | - | - | - | - | - | missing | - |
 
 `missing` is a normal cell, not an error: the campaign is not run on every
 profile for every commit. A cell is listed here only with a page measured at the
