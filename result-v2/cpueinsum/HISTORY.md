@@ -6,16 +6,23 @@ this file is what the generator produces.
 Every page not selected for the index's Cells table, newest first and grouped by the
 revisions it measured. The current pages are in [INDEX.md](INDEX.md).
 
-- Reference revision (`pins/cpueinsum-rs.rev`): `938a25fba9e76fb17dff6086db59e592f918ec22`
+- Reference revision (`pins/cpueinsum-rs.rev`): `124aa12d7c70ae4e5d0f499c549999469118f6de`
 - Newest recorded run: `2026-10-27T05:46:53.998799Z`
 - Every page below is one `(suite, hardware profile, revision, vendor arm)` and carries
   its commit, its hardware and the vendor library it linked itself.
 
 ## Older pages
 
+### `938a25fba9e7`: version -
+
+| suite | profile | vendor | revision | version | date | coverage | status | page |
+|---|---|---|---|---|---|---|---|---|
+| `einsum-opt_flops` | `zen5-cpu` | - | `938a25fba9e7` | - | 2026-10-27 | full | 5 behind | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/938a25fba9e7-timing-v2.md](zen5-cpu/einsum-opt_flops/938a25fba9e7-timing-v2.md) |
+| `einsum-opt_size` | `zen5-cpu` | - | `938a25fba9e7` | - | 2026-10-27 | full | 5 behind | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/938a25fba9e7-timing-v2.md](zen5-cpu/einsum-opt_size/938a25fba9e7-timing-v2.md) |
+
 ### `1620fa86da59`: version -
 
 | suite | profile | vendor | revision | version | date | coverage | status | page |
 |---|---|---|---|---|---|---|---|---|
-| `einsum-opt_flops` | `zen5-cpu` | - | `1620fa86da59` | - | 2026-10-20 | full | 8 behind | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md) |
-| `einsum-opt_size` | `zen5-cpu` | - | `1620fa86da59` | - | 2026-10-20 | full | 8 behind | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md) |
+| `einsum-opt_flops` | `zen5-cpu` | - | `1620fa86da59` | - | 2026-10-20 | full | 13 behind | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_flops/1620fa86da59-timing-v2.md) |
+| `einsum-opt_size` | `zen5-cpu` | - | `1620fa86da59` | - | 2026-10-20 | full | 13 behind | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md](zen5-cpu/einsum-opt_size/1620fa86da59-timing-v2.md) |

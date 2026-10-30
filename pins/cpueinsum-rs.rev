@@ -17,4 +17,7 @@
 # carries it.
 # `v0.6.0` (938a25f) from 2026-10-27: the release on crates.io deps (tcontract 0.6, threadteam 0.1,
 # strided 0.8); main is the same commit. The harness carries over unchanged in shape.
-938a25fba9e76fb17dff6086db59e592f918ec22
+# `v0.9.0` (124aa12) from 2026-10-30: the stack release (tcontract/tcontract-exec 0.9, threadteam
+# 0.2, t4a-faer 0.27, strided 0.9). `crates/cpueinsum-bench` is byte-identical to v0.6.0's: it
+# already builds a threadteam pool from the row's thread count and reads it back.
+124aa12d7c70ae4e5d0f499c549999469118f6de
