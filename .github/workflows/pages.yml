@@ -7,7 +7,7 @@ name: pages
 on:
   push:
     branches: [main]
-    paths: ['result-v2/**', 'pins/**', 'benchmarks/**', requirements.txt, 'scripts/v2/gen_site.py', '.github/workflows/pages.yml']
+    paths: ['data/v2-results/**', 'result-v2/**', 'pins/**', 'benchmarks/**', requirements.txt, 'scripts/v2/gen_site.py', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -34,8 +34,8 @@ jobs:
           python-version: '3.12'
       - name: Install the pinned toolkit
         run: python -m pip install --quiet -r requirements.txt
-      - name: Write the landing page
-        # generated on every deploy from the committed result and pins; not committed
+      - name: Write the site
+        # generated on every deploy from the committed data, result and pins; not committed
         run: python scripts/v2/gen_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
