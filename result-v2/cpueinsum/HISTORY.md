@@ -7,7 +7,7 @@ Every page not selected for the index's Cells table, newest first and grouped by
 revisions it measured. The current pages are in [INDEX.md](INDEX.md).
 
 - Reference revision (`pins/cpueinsum-rs.rev`): `124aa12d7c70ae4e5d0f499c549999469118f6de`
-- Newest recorded run: `2026-10-27T05:46:53.998799Z`
+- Newest recorded run: `2026-10-31T11:09:05.889295Z`
 - Every page below is one `(suite, hardware profile, revision, vendor arm)` and carries
   its commit, its hardware and the vendor library it linked itself.
 

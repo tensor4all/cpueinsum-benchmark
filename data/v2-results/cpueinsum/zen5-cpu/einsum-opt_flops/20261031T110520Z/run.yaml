@@ -1,0 +1,159 @@
+schema_version: 1
+target_profile: zen5-cpu
+suite_id: einsum-opt_flops
+suite_file: benchmarks/suites/einsum-opt_flops.yaml
+suite_sha256: e75d8f718754847a018b607836a69ff1d6a9ed38e2b44d81efa4327b961c9a70
+timestamp: '2026-10-31T11:09:05.889295Z'
+command: scripts/v2/record_run.py zen5-cpu einsum-opt_flops
+library:
+  url: https://github.com/tensor4all/cpueinsum-rs
+  commit: 124aa12d7c70ae4e5d0f499c549999469118f6de
+  dirty: false
+  features: []
+  measured_path: /home/shinaoka/projects/tensor4all/cpueinsum-benchmark/extern/cpueinsum-rs
+  version: null
+harness:
+  commit: 404f67bf286bbc2c9e10df8b18d0fee2f62bf977
+  dirty: false
+  outputs_dirty: true
+  excluded_outputs:
+  - data/v2-results/cpueinsum
+  - result-v2/cpueinsum
+  excluded_sibling_outputs: []
+toolkit:
+  commit: b71624bef111ce941bddaedcce3fdb6eab40f9eb
+  dirty: false
+  measured_path: /home/shinaoka/.local/state/toolkit-b71624be
+verification_files:
+- verify-cpueinsum-1t.csv
+- verify-cpueinsum-4t.csv
+binary:
+  path: /home/shinaoka/projects/tensor4all/cpueinsum-benchmark/target/cpueinsum-rev/124aa12d7c70/bin/cpueinsum-bench
+  sha256: e4d120a7d75fae4d098888d5ee59d79c1d4800d89bb33c37089c104ae8f9fd83
+host:
+  power:
+    cpufreq_boost: '0'
+    amd_pstate_status: active
+    governor: performance
+    energy_performance_preference: performance
+    scaling_max_freq_khz: '2000000'
+    smt:
+      active: '1'
+      control: 'on'
+  numa:
+    nodes: 1
+    cpulists:
+      '0': 0-23
+  role: development
+  hostname: shinaoka-EVO-X1Pro
+  cpu: AMD Ryzen AI 9 HX 470
+  os: Linux 7.0.0-38-generic
+  arch: x86_64
+  logical_cpus: 24
+  l3: 24 MiB (2 instances)
+  l3_domains: '0-3: 16 MiB shared; 4-11: 8 MiB shared'
+  notes: 'AMD Ryzen AI 9 HX 470 (Zen5 mobile APU), 12 physical / 24 logical cores.
+    Heterogeneous L3: CPUs 0-3 share 16 MiB, CPUs 4-11 share 8 MiB, so a thread set
+    must be stated together with the domain it sits in. SMT siblings of CPUs 4-11
+    are 16-23; the idle gate checks them too, because a busy sibling contends with
+    the physical core being measured.'
+build:
+  toolchain:
+    rustc: 'rustc 1.99.0 (b940084d7 2026-09-28)
+
+      binary: rustc
+
+      commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+
+      commit-date: 2026-09-28
+
+      host: x86_64-unknown-linux-gnu
+
+      release: 1.99.0
+
+      LLVM version: 23.1.1
+
+      '
+    rustc_release: 1.99.0
+    rustflags: null
+    target_cpu: null
+threads:
+  counts:
+  - 1
+  - 4
+  cpu_sets:
+    '1': '4'
+    '4': 4-7
+  observer:
+    affinity: 0-3, 12-15
+    free_cpus: 0-3, 12-15
+    source: os.sched_getaffinity(0) in the recording process
+  env:
+    RAYON_NUM_THREADS: null
+    OMP_NUM_THREADS: null
+  note: the vendor's budget is set by the harness from the row's thread count and
+    read back before each measurement; these variables were removed from the measured
+    process's environment so it cannot inherit a different one
+timing_policy:
+  version: 2
+  minimum_untimed_priming_ms: 250
+  statistic: median
+  row_rotation_step: 1
+  repetitions: 5
+  notes: descriptive process medians under a rotating engine-order schedule; raw samples
+    and the verification census are retained
+guards:
+  idle_window_seconds: 3
+  max_busy_percent: 5.0
+  attempts: 1
+  sibling_aware: true
+  logs:
+  - run0-cpueinsum-1t.guard
+  - run0-cpueinsum-4t.guard
+  - run1-cpueinsum-1t.guard
+  - run1-cpueinsum-4t.guard
+  - verify-cpueinsum-1t.guard
+  - verify-cpueinsum-4t.guard
+providers:
+- name: cpueinsum
+  version: null
+  commit: null
+  path: null
+  note: the provider in the measured revision; see library above
+invalidated_by:
+- crates/cpueinsum-bench/**
+- crates/cpueinsum/**
+- Cargo.toml
+- Cargo.lock
+result_files:
+- run0-cpueinsum-1t.csv
+- run0-cpueinsum-4t.csv
+- run1-cpueinsum-1t.csv
+- run1-cpueinsum-4t.csv
+run_spec:
+  populations:
+  - regime: cpueinsum
+    families:
+    - bin_batched_matmul_b32_m64_n64_k64
+    - bin_elementwise_mul_2048x2048
+    - bin_matmul_256
+    - bin_outer_product_4096
+    - gm_queen5_5_3.wcsp
+    - lm_batch_likelihood_brackets_4_4d
+    - lm_batch_likelihood_sentence_3_12d
+    - lm_batch_likelihood_sentence_4_4d
+    - str_matrix_chain_multiplication_100
+    - str_nw_mera_closed_120
+    - str_nw_mera_open_26
+    - tensornetwork_permutation_focus_step409_316
+    - tensornetwork_permutation_light_415
+    n:
+    - '1'
+    batch:
+    - 1
+  dtypes:
+  - float64
+  engines:
+  - opt_flops
+  aa: 2
+  covers_declared_suite: true
