@@ -6,7 +6,7 @@ this file is what the generator produces.
 Older pages (4): [HISTORY.md](HISTORY.md).
 
 - Reference revision (`pins/cpueinsum-rs.rev`): `124aa12d7c70ae4e5d0f499c549999469118f6de`
-- Newest recorded run: `2026-10-27T05:46:53.998799Z`
+- Newest recorded run: `2026-10-31T11:09:05.889295Z`
 - Every page below is one `(suite, hardware profile, revision, vendor arm)` and carries
   its commit, its hardware and the vendor library it linked itself.
 
@@ -18,9 +18,9 @@ rather than being implied by the other arm's page.
 
 | suite | profile | vendor | revision | version | date | coverage | status | page |
 |---|---|---|---|---|---|---|---|---|
-| `einsum-opt_flops` | `zen5-cpu` (optional) | - | - | - | - | - | missing | - |
+| `einsum-opt_flops` | `zen5-cpu` (optional) | - | `124aa12d7c70` | - | 2026-10-31 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_flops/124aa12d7c70-timing-v2.md](zen5-cpu/einsum-opt_flops/124aa12d7c70-timing-v2.md) |
 | `einsum-opt_flops` | `zen2-cpu` (optional) | - | - | - | - | - | missing | - |
-| `einsum-opt_size` | `zen5-cpu` (optional) | - | - | - | - | - | missing | - |
+| `einsum-opt_size` | `zen5-cpu` (optional) | - | `124aa12d7c70` | - | 2026-10-31 | full | current | [result-v2/cpueinsum/zen5-cpu/einsum-opt_size/124aa12d7c70-timing-v2.md](zen5-cpu/einsum-opt_size/124aa12d7c70-timing-v2.md) |
 | `einsum-opt_size` | `zen2-cpu` (optional) | - | - | - | - | - | missing | - |
 
 `missing` is a normal cell, not an error: the campaign is not run on every

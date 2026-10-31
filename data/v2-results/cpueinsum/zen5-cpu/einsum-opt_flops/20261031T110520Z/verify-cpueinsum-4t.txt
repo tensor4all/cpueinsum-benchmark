@@ -1,0 +1,3 @@
+verify: 13 declared cell(s), 13 ok, 0 skipped, 0 failed
+wrote /home/shinaoka/projects/tensor4all/cpueinsum-benchmark/data/v2-results/cpueinsum/zen5-cpu/einsum-opt_flops/20261031T110520Z/verify-cpueinsum-4t.csv
+all comparisons within tolerance
