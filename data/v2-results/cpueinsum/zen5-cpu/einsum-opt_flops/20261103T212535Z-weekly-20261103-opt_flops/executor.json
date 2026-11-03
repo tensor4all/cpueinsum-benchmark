@@ -1,0 +1,8 @@
+{
+  "date": "20261103",
+  "executor": "hermes",
+  "model": "deepseek-v4.1-flash",
+  "note": "sidecar; becomes threads.observer.executor in run.yaml once campaign-toolkit item 7.6 lands",
+  "recorded_by": "skills/weekly-cpu-benchmark/run.sh",
+  "version": "0.22.6"
+}
