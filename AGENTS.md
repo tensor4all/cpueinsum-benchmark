@@ -67,6 +67,11 @@ repository's protocol script (`benchmarks/scripts/pinned.sh`, a verbatim copy of
 toolkit's), which pins the cores and checks that those cores **and their SMT siblings** were
 idle before and after; a run spoiled by other load is discarded, not published.
 
+`apple-m4max` is the exception, and it is declared, not improvised: macOS has no CPU affinity
+interface, so its profile says `pinned: false`, the protocol script runs the command unpinned and
+without the idle gate, and the manifest records `threads.pinned: false` with `unpinned` CPU sets.
+Its pages are marked unpinned and are never put in the same comparison as the pinned Linux rows.
+
 The campaign declares `protocol: campaign`, because `cpueinsum-rs` carries no benchmark
 protocol of its own; the copy here is the pinned one and is covered by
 `default_invalidated_by`-style scrutiny rather than by a measured-repository path. If the

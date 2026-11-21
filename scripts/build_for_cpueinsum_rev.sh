@@ -52,8 +52,10 @@ if [[ "$profile" == release ]]; then profile_flag=(--release); subdir=release; f
 FEATURES="${BENCH_FEATURES:-}"
 # An empty feature list must not become `--features ""`, which cargo rejects.
 feature_flag=(); [[ -n "$FEATURES" ]] && feature_flag=(--features "$FEATURES")
+# `${a[@]+"${a[@]}"}`, not `"${a[@]}"`: macOS's bash 3.2 reports an empty array as unbound
+# under `set -u`, which is every build without features.
 RUSTC_WRAPPER= CARGO_TARGET_DIR="$target" cargo build --manifest-path "$MANIFEST" \
-    "${profile_flag[@]}" "${feature_flag[@]}" "${bin_args[@]}" >&2
+    ${profile_flag[@]+"${profile_flag[@]}"} ${feature_flag[@]+"${feature_flag[@]}"} "${bin_args[@]}" >&2
 
 artifact="$target/$subdir/cpueinsum-bench"
 [[ -x "$artifact" ]] || { echo "ERROR: $artifact was not built" >&2; exit 1; }

@@ -15,3 +15,8 @@ profiles:
   # `campaign_toolkit/profiles/zen2-cpu.yaml`. Every suite lists it as optional: it is
   # measured when the stack's versions move, not on the weekly schedule.
   - zen2-cpu
+  # The aarch64 host of the route-fit campaign (#18), resolved against
+  # `campaign_toolkit/profiles/apple-m4max.yaml`. It is unpinned (`pinned: false`): macOS
+  # cannot place a process on chosen cores, so its runs record `threads.pinned: false` and
+  # `unpinned` CPU sets, and they are never compared with the pinned Linux rows above.
+  - apple-m4max
