@@ -26,8 +26,10 @@ rather than being implied by the other arm's page.
 `missing` is a normal cell, not an error: the campaign is not run on every
 profile for every commit. A cell is listed here only with a page measured at the
 reference revisions; every other page is in the history. `status` is currency: a page
-measured before the pin moved can still be `current` (no invalidating commit since), and
-the `--check` gate follows currency, so moving a pin before re-measuring does not fail CI.
+measured before the pin moved can still be `current` (no invalidating commit since). The
+`--check` gate fails when no publication was measured at the pins, or when the newest
+publication was measured elsewhere: record at the pin, or keep the pin at the last
+measured revision.
 `coverage` relates a page to the *current* declaration: `full` when it was measured over
 the whole spec and the declaration has not moved since, `partial` when it covered a
 subset, and `declaration-changed` when the declaration itself changed after the
