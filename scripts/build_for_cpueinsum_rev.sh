@@ -4,6 +4,10 @@
 #
 #   build_for_cpueinsum_rev.sh <cpueinsum-rs-dir> <out-var-file> [bin...]
 #
+# The first bin is the harness the recorder executes (the descriptor's `measured.binary`):
+# `cpueinsum-bench` for the einsum campaign, `cpueinsum-replay` for the grouped-GEMM route
+# campaign. Both are crates of the measured checkout.
+#
 # Writes shell assignments to <out-var-file>:
 #   CPUEINSUM_REV, CPUEINSUM_DIRTY, CPUEINSUM_DIR, BUILD_FEATURES, BIN_DIR
 #
@@ -57,7 +61,8 @@ feature_flag=(); [[ -n "$FEATURES" ]] && feature_flag=(--features "$FEATURES")
 RUSTC_WRAPPER= CARGO_TARGET_DIR="$target" cargo build --manifest-path "$MANIFEST" \
     ${profile_flag[@]+"${profile_flag[@]}"} ${feature_flag[@]+"${feature_flag[@]}"} "${bin_args[@]}" >&2
 
-artifact="$target/$subdir/cpueinsum-bench"
+harness="${BINS[0]}"
+artifact="$target/$subdir/$harness"
 [[ -x "$artifact" ]] || { echo "ERROR: $artifact was not built" >&2; exit 1; }
 
 # The entry point the recorder executes, and the revision it is keyed to. Installed
@@ -65,7 +70,7 @@ artifact="$target/$subdir/cpueinsum-bench"
 # generated file's.
 bin_dir="$target/bin"
 mkdir -p "$bin_dir"
-install -m 755 "$artifact" "$bin_dir/cpueinsum-bench"
+install -m 755 "$artifact" "$bin_dir/$harness"
 
 {
     printf 'CPUEINSUM_REV=%q\n' "$rev"
@@ -76,4 +81,4 @@ install -m 755 "$artifact" "$bin_dir/cpueinsum-bench"
     # backslash in front of every comma the manifest has to split on.
     printf 'BUILD_FEATURES=%s\n' "$FEATURES"
 } > "$OUT_FILE"
-echo "built ${BINS[*]} for cpueinsum-rs $rev (dirty=$dirty); harness artifact $artifact; entry point $bin_dir/cpueinsum-bench" >&2
+echo "built ${BINS[*]} for cpueinsum-rs $rev (dirty=$dirty); harness artifact $artifact; entry point $bin_dir/$harness" >&2
