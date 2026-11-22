@@ -15,4 +15,9 @@
 # `main` (cb8e71f) from 2026-11-22: the merge of #84, which makes `cpueinsum-replay` report
 # Accelerate's `vendor.linkage` as `shared` (the campaign schema's term for a dynamic library)
 # instead of `framework`, which the recorder refused. It is the only change since 0b5d091.
-cb8e71fcf519aae2e2b2b953e88e988a59e460b1
+# `main` (ebc74c3) from 2026-11-22: #85-#88. The M4 Max run at cb8e71f stopped at its first
+# 16-thread cell: `cpueinsum-replay` could not reserve a freshly built pool as a team. #86 makes
+# the harness wait up to 10 s for the workers. #87 sets the vendor's budget only when the `blas`
+# row runs (the x86_64 leg needs it). #85 moves the measured library itself (`GroupedPlan`
+# holds shared child plans), so no number recorded at cb8e71f carries over to this pin.
+ebc74c31e485012c1a3c13d5bebd37d88ddd5911
