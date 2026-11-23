@@ -90,6 +90,10 @@ the grouped GEMM calls symtn issues in a real calculation (iTEBD + H_eff, U(1) a
 | Corpus | [`pins/symtn-gemm-trace.rev`](pins/symtn-gemm-trace.rev) — `gemm-trace-corpus/` of Ryo-wtnb11/symtn-rs `trace/gemm-trace`, digest-checked |
 | Results | `result-v2/grouped-<host>/INDEX.md` — generated |
 
+The M4 Max leg was recorded at the pin and is inconclusive: its declared A/A gate failed at every
+width (https://github.com/tensor4all/cpueinsum-benchmark/issues/18#issuecomment-7089091981). Its descriptor and suites stay declared so the record of what was run is kept, but
+no comparison uses them and its run data are not committed. The campaign continues on the Xeon.
+
 The harness is `cpueinsum-replay` (`crates/cpueinsum-replay` of the measured checkout). Its
 rows are `sequential`, `outer`, `auto` and `inner` (`cpueinsum::GroupedPlan` under that
 `BatchStrategy`) and `blas` (`cpueinsum_blas::GroupedPlan` on the host's vendor, Accelerate on

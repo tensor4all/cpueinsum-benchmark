@@ -9,7 +9,10 @@ id: grouped-m4max
 #   * the `blas` row's provider is the host's vendor (Accelerate here, OpenBLAS on x86_64), and
 #     an engine maps to one provider per descriptor;
 #   * its pages must not share an index with a pinned profile's (decision 3 on #18).
-# The x86_64 host gets a sibling descriptor once its profile exists in campaign-toolkit.
+# The x86_64 host is `benchmarks/grouped-xeon9242/campaign.yaml`.
+#
+# Status: declared, not used for comparison. The run at the pin was inconclusive (the A/A gate
+# failed at every width, https://github.com/tensor4all/cpueinsum-benchmark/issues/18#issuecomment-7089091981), so no page of this descriptor is committed.
 measured:
   name: cpueinsum-rs
   url: https://github.com/tensor4all/cpueinsum-rs

@@ -121,9 +121,11 @@ variable set; without it they act on the einsum campaign. Its rules beyond the o
   setup script refuses a capture whose SHA-256 is not the one the corpus README lists. A capture
   is host-specific: a width replays the capture of the host that runs it (`--width-capture`).
 * One suite is one (capture, dtype). Regenerate the suites with `scripts/gen_grouped_suite.py`
-  when the harness, the corpus pin or the width assignment moves; CI checks that each suite
-  declares exactly its capture's calls of its dtype.
-* `apple-m4max` is unpinned; its pages are never compared with a pinned profile's.
+  when the harness, the corpus pin or the width assignment moves, and check that each suite
+  declares exactly its capture's calls of its dtype. CI does not run the route checks.
+* `apple-m4max` is unpinned; its pages are never compared with a pinned profile's. Its leg was
+  inconclusive (https://github.com/tensor4all/cpueinsum-benchmark/issues/18#issuecomment-7089091981): the descriptor and suites stay declared, no comparison uses them, and its
+  run data are not committed.
 * `xeon9242-cpu` spans 4 NUMA nodes. Its runs are pinned by the profile's rows, use no `numactl`,
   and record `host.numa` (layout and automatic balancing). The generated page names those records
   but does not print their values: quote them from the profile and `run.yaml` with any number.
@@ -134,9 +136,9 @@ python3 -m campaign_toolkit.declarations            # descriptor + suite declara
 python3 scripts/v2/validate_run.py data/v2-results/cpueinsum/*/*/*/run.yaml
 python3 scripts/v2/gen_index.py --check              # the committed index is regenerated
 # and the same three with CAMPAIGN_DESCRIPTOR=benchmarks/grouped-m4max/campaign.yaml
-# and with CAMPAIGN_DESCRIPTOR=benchmarks/grouped-xeon9242/campaign.yaml
+# and with CAMPAIGN_DESCRIPTOR=benchmarks/grouped-xeon9242/campaign.yaml (by hand: not in CI)
 ```
 
-`.github/workflows/ci.yml` runs exactly these, plus a check that the frozen suite still names
-exactly the pinned corpus's instances. A rebuilt harness, a regenerated suite or a bumped pin
+`.github/workflows/ci.yml` runs the first three, plus a check that the frozen suite still names
+exactly the pinned corpus's instances; it does not run the route campaign's lines. A rebuilt harness, a regenerated suite or a bumped pin
 is a change to what the numbers mean; say so in the commit message.
