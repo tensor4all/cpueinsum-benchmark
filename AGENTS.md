@@ -120,7 +120,8 @@ variable set; without it they act on the einsum campaign. Its rules beyond the o
 * The corpus is `extern/symtn-gemm-trace/gemm-trace-corpus`, at `pins/symtn-gemm-trace.rev`. The
   setup script refuses a capture whose SHA-256 is not the one the corpus README lists. A capture
   is host-specific: a width replays the capture of the host that runs it (`--width-capture`).
-* One suite is one (capture, dtype). Regenerate the suites with `scripts/gen_grouped_suite.py`
+* One suite is one (capture, dtype, row set): a row declared at some of a capture's widths only
+  splits it (`--widths`), as the Xeon's width-1-only `blas` row does. Regenerate the suites with `scripts/gen_grouped_suite.py`
   when the harness, the corpus pin or the width assignment moves, and check that each suite
   declares exactly its capture's calls of its dtype. CI does not run the route checks.
 * `apple-m4max` is unpinned; its pages are never compared with a pinned profile's. Its leg was

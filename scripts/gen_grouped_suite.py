@@ -6,7 +6,9 @@ family, and the suite's thread budgets are the widths the descriptor's `--width-
 assigns to that capture. The recorder passes a run's dtypes and budgets to every population
 (`campaign_toolkit.record_run`, `runs[0]`), so a suite that mixed dtypes or captures would
 declare cells the harness can only skip; split this way, a skipped cell is an exception that
-names its reason (for example a `blas` call the vendor plan declined).
+names its reason (for example a `blas` call the vendor plan declined). For the same reason a
+suite is one row set: a row declared at some of the capture's widths only (`--widths`) splits
+the capture into one suite per row set.
 
 The census is the same untimed `verify` the recorder runs, with the descriptor's own
 `measured.harness_args`, and the coverage check is the toolkit's `expected_cells`, shared with
@@ -176,6 +178,10 @@ def main(argv=None):
     ap.add_argument("--rows", default=",".join(ROWS),
                     help="the engine rows this suite declares (default: all five); the "
                          "descriptor says why a suite leaves one out")
+    ap.add_argument("--widths", default=None,
+                    help="declare only these of the capture's widths, comma separated (default: "
+                         "all the descriptor assigns to it); a suite is one row set, so a row "
+                         "declared at some widths only is its own suite")
     args = ap.parse_args(argv)
     engine_rows = args.rows.split(",")
     if not engine_rows or any(r not in ROWS for r in engine_rows):
@@ -189,6 +195,11 @@ def main(argv=None):
                     if stem == args.capture)
     if not widths:
         sys.exit(f"ERROR: the descriptor's --width-capture assigns no width to {args.capture}")
+    if args.widths:
+        wanted = sorted(int(w) for w in args.widths.split(","))
+        if not set(wanted) <= set(widths):
+            sys.exit(f"ERROR: --widths {wanted} are not all widths of {args.capture} ({widths})")
+        widths = wanted
     families, records, engine = capture_families(corpus_dir, args.capture, args.dtype)
     profiles = {p["name"]: p for p in toolkit_descriptor.load_descriptor(ROOT).profiles()}
     if args.profile not in profiles:

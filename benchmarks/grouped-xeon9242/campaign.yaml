@@ -10,7 +10,7 @@ id: grouped-xeon9242
 #   * the `blas` row's provider is the host's vendor (Accelerate here, OpenBLAS on x86_64), and
 #     an engine maps to one provider per descriptor;
 #   * its pages must not share an index with another host's (decision 3 on #18).
-# Everything else (pins, harness, timing contract, columns, and the rows except at width 96, below)
+# Everything else (pins, harness, timing contract, columns, and the rows except above width 1, below)
 # is the M4 Max descriptor's.
 #
 # Campaign note, replay harness version (recorded as asked on #18): `cpueinsum-replay` is built
@@ -56,19 +56,20 @@ result_dir: result-v2/grouped-xeon9242
 # loader resolves is the run's, and `binary-info.txt` records its version, build and thread
 # limit; the harness refuses a library whose thread read-back is not the row's width.
 #
-# No `blas` row at width 96 (decided on #18): the 96-thread suites declare the four native rows
-# only (`gen_grouped_suite.py --rows sequential,outer,auto,inner`), so that cell is vendor-free.
-# The stock el8 OpenBLAS (0.3.15) is the single-threaded build, the threaded 0.3.30 builds set up on
-# the cluster stop at 64 threads, and a build that reaches 96 is self-built, so not the stock vendor
-# baseline: it would need its own provenance in every table. A full-width vendor comparison, if
-# it is wanted later, is a separately labelled `loader_paths` arm, not this `blas` row.
-# OPEN (#18): the same single-threaded stock library is refused at widths 4 and 8 too, so until
-# a threaded OpenBLAS is chosen the `blas` row of the 4-thread suites can only run at width 1.
-# The census of those suites (untimed) loaded a threaded 0.3.30 build through `LD_LIBRARY_PATH`;
-# that is not a declaration of the library a timed run uses.
+# `blas` is declared at width 1 only (decided on #18): the stock el8 OpenBLAS (0.3.15) is the one
+# vendor library declared on this host, and it is the single-threaded build, so the harness refuses
+# it at any width above 1 ("requested 4 vendor threads, the vendor reports 1"). The widths 4, 8 and
+# 96 are vendor-free and declare the four native rows only. A suite is one row set
+# (`campaign_toolkit.campaign.run_spec`), so the 4-thread capture is two suites per dtype:
+# `-t4-w1-` (`gen_grouped_suite.py --widths 1`, five rows) and `-t4-w4-8-` (`--widths 4,8 --rows
+# sequential,outer,auto,inner`); the 96-thread suites take `--rows sequential,outer,auto,inner`.
+# The threaded 0.3.30 builds on the cluster stop at 64 threads and a build that reaches 96 is
+# self-built; neither is the stock vendor baseline, and neither enters this descriptor through
+# `LD_LIBRARY_PATH`. A threaded vendor comparison, if it is wanted later, is a separately labelled
+# `loader_paths` arm with its own provenance, not this `blas` row.
 #
-# Four rows make one rotation cycle of four process sets, so the 96-thread suites are recorded
-# with `--aa 4`; the 1/4/8-thread suites keep the five-row `aa: 5` below.
+# The four-row suites (widths 4, 8 and 96) make one rotation cycle of four process sets, so they
+# are recorded with `--aa 4`; the five-row width-1 suites keep `aa: 5` below.
 engines:
   sequential: cpueinsum
   outer: cpueinsum
