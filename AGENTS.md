@@ -110,7 +110,8 @@ row and the run is not published.
 
 ## The grouped-GEMM route campaign
 
-`benchmarks/grouped-m4max/campaign.yaml` is a second campaign in this repository, selected with
+`benchmarks/grouped-m4max/campaign.yaml` (aarch64) and `benchmarks/grouped-xeon9242/campaign.yaml`
+(x86_64) are a second campaign in this repository, one descriptor per host, selected with
 `CAMPAIGN_DESCRIPTOR`. Every recorder, validator and index command for it runs with that
 variable set; without it they act on the einsum campaign. Its rules beyond the ones above:
 
@@ -123,6 +124,8 @@ variable set; without it they act on the einsum campaign. Its rules beyond the o
   when the harness, the corpus pin or the width assignment moves; CI checks that each suite
   declares exactly its capture's calls of its dtype.
 * `apple-m4max` is unpinned; its pages are never compared with a pinned profile's.
+* `xeon9242-cpu` spans 4 NUMA nodes. Its runs are pinned by the profile's rows, use no `numactl`,
+  and record `host.numa` (layout and automatic balancing); its pages state those conditions.
 
 
 ```sh
@@ -130,6 +133,7 @@ python3 -m campaign_toolkit.declarations            # descriptor + suite declara
 python3 scripts/v2/validate_run.py data/v2-results/cpueinsum/*/*/*/run.yaml
 python3 scripts/v2/gen_index.py --check              # the committed index is regenerated
 # and the same three with CAMPAIGN_DESCRIPTOR=benchmarks/grouped-m4max/campaign.yaml
+# and with CAMPAIGN_DESCRIPTOR=benchmarks/grouped-xeon9242/campaign.yaml
 ```
 
 `.github/workflows/ci.yml` runs exactly these, plus a check that the frozen suite still names

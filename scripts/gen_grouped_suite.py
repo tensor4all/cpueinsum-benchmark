@@ -32,6 +32,7 @@ import subprocess
 import sys
 
 import yaml
+from campaign_toolkit import descriptor as toolkit_descriptor
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from gen_suite_from_census import Block, check_coverage, read_census  # noqa: E402
@@ -75,16 +76,50 @@ ENGINES_DOC = {
         identity="as `sequential`",
         caveat="The only native route that gives a one-job call more than one thread.",
     ),
-    "blas": dict(
-        provider="accelerate",
-        summary="`cpueinsum_blas::GroupedPlan` on the linked vendor (Accelerate on macOS), one "
-                "vendor GEMM per job inside the caller's team.",
-        identity="the vendor the harness reports in `binary-info.txt` (`vendor.name`); "
-                 "Accelerate has no version or thread read-back",
+}
+
+# The `blas` row's provider is the descriptor's `engines.blas`; what the page says about it
+# depends on which vendor that is.
+VENDOR_DOC = {
+    "accelerate": ("Accelerate on macOS", "Accelerate has no version or thread read-back"),
+    "openblas": ("OpenBLAS on Linux",
+                 "OpenBLAS reports its version and build (`openblas_get_config`), and its thread "
+                 "count is set to the row's width and read back"),
+}
+
+
+def blas_doc(vendor):
+    where, readback = VENDOR_DOC[vendor]
+    return dict(
+        provider=vendor,
+        summary=f"`cpueinsum_blas::GroupedPlan` on the linked vendor ({where}), one "
+                f"vendor GEMM per job inside the caller's team.",
+        identity=f"the vendor the harness reports in `binary-info.txt` (`vendor.name`); "
+                 f"{readback}",
         caveat="A call the vendor plan declines runs natively and is reported as a skipped "
                "cell, not timed as `blas`.",
-    ),
-}
+    )
+
+
+def placement(profile, widths):
+    """The suite's `cpu_sets` for the profile and the blind spot that says how it is placed."""
+    name = profile["name"]
+    if profile.get("pinned") is False:
+        # The recorder records every set of an unpinned profile as `unpinned` and never reads
+        # this list (it is required by the schema and checked for size).
+        return ({name: [f"0-{t - 1}" for t in widths]},
+                f"The host is unpinned (`{name}`, `pinned: false`): the scheduler places "
+                "threads, and width 16 includes the 4 efficiency cores. These cells are not "
+                "comparable with a pinned profile's.")
+    rows = {row["threads"]: row["measured"] for row in profile.get("thread_rows", [])}
+    missing = [t for t in widths if t not in rows]
+    if missing:
+        sys.exit(f"ERROR: profile {name} has no thread row for widths {missing}")
+    return ({name: [rows[t] for t in widths]},
+            f"The host is `{name}`, pinned by its thread rows. Its NUMA conditions (row "
+            "placement, memory policy, automatic NUMA balancing) are the profile's `numa` "
+            "block, and each run records the node layout and balancing it found in "
+            "`host.numa`.")
 
 
 def descriptor():
@@ -142,6 +177,10 @@ def main(argv=None):
     if not widths:
         sys.exit(f"ERROR: the descriptor's --width-capture assigns no width to {args.capture}")
     families, records, engine = capture_families(corpus_dir, args.capture, args.dtype)
+    profiles = {p["name"]: p for p in toolkit_descriptor.load_descriptor(ROOT).profiles()}
+    if args.profile not in profiles:
+        sys.exit(f"ERROR: {args.profile} is not a profile of {d['profiles_file']}")
+    cpu_sets, placement_note = placement(profiles[args.profile], widths)
 
     workdir = ROOT / "target/census" / REGIME
     workdir.mkdir(parents=True, exist_ok=True)
@@ -187,9 +226,7 @@ def main(argv=None):
             "known_blind_spots": [
                 "A sample is warm-cache back-to-back replay of one call; the cache state "
                 "between the calls of the real run is not reproduced.",
-                "The host is unpinned (`apple-m4max`, `pinned: false`): the scheduler places "
-                "threads, and width 16 includes the 4 efficiency cores. These cells are not "
-                "comparable with a pinned profile's.",
+                placement_note,
                 "Per-call grouping depends on symtn's engine width at capture: widths 1, 4 and "
                 "8 replay the 4-thread capture, full width replays the full-width capture.",
                 "Every call has ops N,N and alpha = 1, and no call is non-compact: lazy "
@@ -201,14 +238,12 @@ def main(argv=None):
         },
         "runs": [{
             "threads": widths,
-            # The profile is unpinned: the recorder records every set as `unpinned` and
-            # never reads this list (it is required by the schema and checked for size).
-            "cpu_sets": {args.profile: [f"0-{t - 1}" for t in widths]},
+            "cpu_sets": cpu_sets,
             "dtypes": [args.dtype],
             "engines": list(ROWS),
             "populations": [{"regime": REGIME, "groups": [REGIME], "n": ["1"], "batch": [1]}],
         }],
-        "engines_doc": ENGINES_DOC,
+        "engines_doc": {**ENGINES_DOC, "blas": blas_doc(d["engines"]["blas"])},
     }
     expected = check_coverage(suite, rows)
     header = [
