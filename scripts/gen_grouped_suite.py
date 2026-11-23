@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""Turn the replay harness's own census into a frozen suite of the grouped-GEMM route campaign.
+
+One suite is one (capture, dtype): every call record of that dtype in one capture file is a
+family, and the suite's thread budgets are the widths the descriptor's `--width-capture`
+assigns to that capture. The recorder passes a run's dtypes and budgets to every population
+(`campaign_toolkit.record_run`, `runs[0]`), so a suite that mixed dtypes or captures would
+declare cells the harness can only skip; split this way, a skipped cell is an exception that
+names its reason (for example a `blas` call the vendor plan declined).
+
+The census is the same untimed `verify` the recorder runs, with the descriptor's own
+`measured.harness_args`, and the coverage check is the toolkit's `expected_cells`, shared with
+`gen_suite_from_census.py`. Re-running against the same binary and corpus emits a byte-identical
+file.
+
+Usage:
+    CAMPAIGN_DESCRIPTOR=benchmarks/grouped-m4max/campaign.yaml python3 scripts/gen_grouped_suite.py \\
+        --binary target/cpueinsum-rev/0b5d091afe7f/bin/cpueinsum-replay \\
+        --revision "$(git -C extern/cpueinsum-rs-grouped rev-parse HEAD)" \\
+        --capture itebd-heff-b705d809-t4 --dtype float64 \\
+        --out benchmarks/grouped-m4max/suites/grouped-m4max-t4-float64.yaml
+"""
+from __future__ import annotations
+
+import argparse
+import gzip
+import json
+import os
+import pathlib
+import shlex
+import subprocess
+import sys
+
+import yaml
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from gen_suite_from_census import Block, check_coverage, read_census  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+REGIME = "grouped"
+ROWS = ["sequential", "outer", "auto", "inner", "blas"]
+DTYPE_OF_RECORD = {"F64": "float64", "C64": "complex128"}
+STALE_AFTER = 20
+
+ENGINES_DOC = {
+    "sequential": dict(
+        provider="cpueinsum",
+        summary="`cpueinsum::GroupedPlan` under `BatchStrategy::Sequential`: the jobs of the call "
+                "one after another, each on the whole team.",
+        identity="the measured cpueinsum-rs revision in this run's manifest (`library.commit`), "
+                 "pinned by `pins/cpueinsum-rs-grouped.rev`",
+        caveat="The reference of the checked twin: every other row is compared with it, bitwise, "
+               "at the same width.",
+    ),
+    "outer": dict(
+        provider="cpueinsum",
+        summary="`GroupedPlan` under `BatchStrategy::Outer`: jobs split over lanes of the team, "
+                "one thread per job.",
+        identity="as `sequential`",
+        caveat="A one-job call has one lane, so it runs serially; the observed route is in "
+               "`route_observed`.",
+    ),
+    "auto": dict(
+        provider="cpueinsum",
+        summary="`GroupedPlan` under `BatchStrategy::Auto`: the route cpueinsum's current "
+                "selector picks for the call and the width.",
+        identity="as `sequential`",
+        caveat="The selector is the subject of the fit this campaign feeds "
+               "(tensor4all/cpueinsum-rs#80); its pick is recorded per cell in `route_observed`.",
+    ),
+    "inner": dict(
+        provider="cpueinsum",
+        summary="`GroupedPlan` under `BatchStrategy::Inner`: every job on all threads of the "
+                "team, one after another.",
+        identity="as `sequential`",
+        caveat="The only native route that gives a one-job call more than one thread.",
+    ),
+    "blas": dict(
+        provider="accelerate",
+        summary="`cpueinsum_blas::GroupedPlan` on the linked vendor (Accelerate on macOS), one "
+                "vendor GEMM per job inside the caller's team.",
+        identity="the vendor the harness reports in `binary-info.txt` (`vendor.name`); "
+                 "Accelerate has no version or thread read-back",
+        caveat="A call the vendor plan declines runs natively and is reported as a skipped "
+               "cell, not timed as `blas`.",
+    ),
+}
+
+
+def descriptor():
+    path = pathlib.Path(os.environ.get("CAMPAIGN_DESCRIPTOR", ""))
+    if not path.name:
+        sys.exit("ERROR: set CAMPAIGN_DESCRIPTOR to the route campaign's descriptor")
+    path = path if path.is_absolute() else ROOT / path
+    return yaml.safe_load(path.read_text())
+
+
+def option(args, flag):
+    return args[args.index(flag) + 1]
+
+
+def capture_families(corpus_dir, stem, dtype):
+    """`<stem>:rNNN` for every call record of `dtype`, NNN counting call records from 0."""
+    path = corpus_dir / f"{stem}.jsonl.gz"
+    with gzip.open(path, "rt") as handle:
+        provenance, *records = [json.loads(line) for line in handle]
+    families = [f"{stem}:r{i:03d}" for i, r in enumerate(records)
+                if DTYPE_OF_RECORD[r["dtype"]] == dtype]
+    if not families:
+        sys.exit(f"ERROR: {path} has no {dtype} call")
+    return families, len(records), provenance["engine_threads"]
+
+
+def run_census(binary, harness_args, thread, dtype, families, out_path):
+    cmd = [str(binary), "verify", *harness_args,
+           "--threads", str(thread), "--n", "1", "--batch", "1", "--dtype", dtype,
+           "--family", ",".join(families), "--rows", ",".join(ROWS),
+           "--regime", REGIME, "--census-csv", str(out_path)]
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
+    if proc.returncode != 0 or "all comparisons within tolerance" not in proc.stdout:
+        sys.exit(f"ERROR: census at {thread}T did not report a clean grid (exit "
+                 f"{proc.returncode})\n{proc.stdout[-2000:]}\n{proc.stderr[-2000:]}")
+    return cmd
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--binary", required=True, type=pathlib.Path)
+    ap.add_argument("--revision", required=True)
+    ap.add_argument("--capture", required=True, help="the capture stem this suite replays")
+    ap.add_argument("--dtype", required=True, choices=sorted(DTYPE_OF_RECORD.values()))
+    ap.add_argument("--profile", default="apple-m4max")
+    ap.add_argument("--out", required=True, type=pathlib.Path)
+    args = ap.parse_args(argv)
+
+    d = descriptor()
+    harness_args = list(d["measured"]["harness_args"])
+    corpus_dir = ROOT / option(harness_args, "--corpus-dir")
+    widths = sorted(int(w) for w, stem in
+                    (entry.split("=") for entry in option(harness_args, "--width-capture").split(","))
+                    if stem == args.capture)
+    if not widths:
+        sys.exit(f"ERROR: the descriptor's --width-capture assigns no width to {args.capture}")
+    families, records, engine = capture_families(corpus_dir, args.capture, args.dtype)
+
+    workdir = ROOT / "target/census" / REGIME
+    workdir.mkdir(parents=True, exist_ok=True)
+    commands, rows = [], []
+    for t in widths:
+        path = workdir / f"{args.out.stem}-{t}t.census.csv"
+        commands.append(run_census(args.binary, harness_args, t, args.dtype, families, path))
+        rows.extend(read_census(path))
+    skipped = [r for r in rows if r["status"] == "skipped"]
+
+    suite = {
+        "schema_version": 1,
+        "id": args.out.stem,
+        "description": Block(
+            f"The grouped GEMM calls symtn issued in an iTEBD + H_eff run, replayed call by call "
+            f"by `cpueinsum-replay` out of the pinned `cpueinsum-rs` checkout. Capture "
+            f"`{args.capture}` (symtn engine width {engine}), {args.dtype} calls only: one family per call "
+            f"record, one engine row per `GroupedPlan` route. The rows are routes of one "
+            f"library plus the vendor GEMM loop of `cpueinsum-blas`, so a table here is a route "
+            f"comparison inside cpueinsum, not a comparison of implementations. The declared "
+            f"identity shape is the sentinel `n = 1`: each call fixes its own job list, which "
+            f"travels in the harness's `case_m` (jobs), `case_n` (total m*n*k), `case_k` "
+            f"(output elements) and `job_m/n/k` (largest job) columns."),
+        "invalidated_by": list(d["default_invalidated_by"]),
+        "stale_after": STALE_AFTER,
+        "required_profiles": [],
+        "optional_profiles": [args.profile],
+        "family_groups": {REGIME: families},
+        "workloads": {
+            "name": Block(f"symtn grouped-GEMM corpus, {args.capture}, {args.dtype}"),
+            "description": Block(
+                "Spin-1/2 Heisenberg chain with U(1) and SU(2) symmetry: iTEBD with SVD "
+                "truncation at chi = 64, 256 and 1024 states, then the two-site H_eff matvec on "
+                "the converged bond. Every grouped GEMM call the default dense executor "
+                "received, identical calls merged with a multiplicity. The job list of a call "
+                "(offsets, m, n, k, leading dimensions) is the capture's; the operand values are "
+                "the harness's small-integer fill."),
+            "source": Block(
+                f"`gemm-trace-corpus/{args.capture}.jsonl.gz` of Ryo-wtnb11/symtn-rs at "
+                f"`pins/symtn-gemm-trace.rev`, materialised by `scripts/setup_extern_deps.sh`, "
+                f"which refuses a file whose SHA-256 is not the one the corpus README lists. "
+                f"{len(families)} of the capture's {records} call records have this dtype."),
+            "known_blind_spots": [
+                "A sample is warm-cache back-to-back replay of one call; the cache state "
+                "between the calls of the real run is not reproduced.",
+                "The host is unpinned (`apple-m4max`, `pinned: false`): the scheduler places "
+                "threads, and width 16 includes the 4 efficiency cores. These cells are not "
+                "comparable with a pinned profile's.",
+                "Per-call grouping depends on symtn's engine width at capture: widths 1, 4 and "
+                "8 replay the 4-thread capture, full width replays the full-width capture.",
+                "Every call has ops N,N and alpha = 1, and no call is non-compact: lazy "
+                "adjoints, scaled updates and leading dimensions are not exercised.",
+                "No DMRG sweep: H_eff on the iTEBD-converged bond stands in for the Lanczos "
+                "matvec.",
+                "First touch of every buffer is on the main thread.",
+            ],
+        },
+        "runs": [{
+            "threads": widths,
+            # The profile is unpinned: the recorder records every set as `unpinned` and
+            # never reads this list (it is required by the schema and checked for size).
+            "cpu_sets": {args.profile: [f"0-{t - 1}" for t in widths]},
+            "dtypes": [args.dtype],
+            "engines": list(ROWS),
+            "populations": [{"regime": REGIME, "groups": [REGIME], "n": ["1"], "batch": [1]}],
+        }],
+        "engines_doc": ENGINES_DOC,
+    }
+    expected = check_coverage(suite, rows)
+    header = [
+        "# GENERATED by scripts/gen_grouped_suite.py -- do not edit by hand.",
+        f"# Harness: {args.binary} (cpueinsum-replay)   Source revision: {args.revision}",
+        "# Census (untimed `verify`, at every declared width):",
+        *[f"#   {shlex.join(c[:c.index('--family') + 1] + ['<families>'] + c[c.index('--family') + 2:])}"
+          for c in commands],
+        f"# Families: {len(families)} {args.dtype} call records of {args.capture} "
+        f"({records} records); widths: {', '.join(map(str, widths))}; "
+        f"census: {len(rows)} cells, {len(skipped)} skipped.",
+        *[f"# Skipped in the census: {r['row']} {r['family']} {r['threads']}T -- {r['note']}"
+          for r in skipped],
+        "",
+    ]
+    text = "\n".join(header) + yaml.safe_dump(suite, sort_keys=False, default_flow_style=False,
+                                              allow_unicode=True, width=100)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(text)
+    print(f"wrote {args.out}: {len(families)} families, widths {widths}, "
+          f"{len(expected)} declared cells, {len(skipped)} skipped in the census")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

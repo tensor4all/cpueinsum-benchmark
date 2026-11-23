@@ -47,7 +47,8 @@ for f in $(printf '%s\n' "$changed" | grep -E '^pins/.*\.rev$' || true); do
     for sha in $(grep -E '^[0-9a-f]{40}$' "$f" || true); do
         found=0
         for repo in "$root" "$root/../faer" "$root/../campaign-toolkit" "$root"/extern/*/; do
-            [ -d "$repo/.git" ] || continue
+            # -e, not -d: a worktree (or a symlink to one) has a .git file
+            [ -e "$repo/.git" ] || continue
             if git -C "$repo" cat-file -e "$sha^{commit}" 2>/dev/null; then found=1; break; fi
         done
         if [ "$found" -eq 0 ]; then

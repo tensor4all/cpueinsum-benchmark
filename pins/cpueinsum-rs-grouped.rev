@@ -1,0 +1,15 @@
+# The measured revision of the grouped-GEMM route campaign (#18): what
+# `scripts/setup_extern_deps.sh` materialises as `extern/cpueinsum-rs-grouped` and what
+# `result-v2/grouped-m4max/INDEX.md` measures staleness against.
+#
+# It is its own pin, not `pins/cpueinsum-rs.rev` (decision 2 on #18): that file is the einsum
+# campaign's reference revision, and moving it would mark the einsum pages stale for a reason
+# unrelated to them. This pin must be at or after cpueinsum-rs `1ca7431` (#73/#74, the vendor
+# GEMM runs inside the caller's team); before it the `blas` row above one thread measures one
+# CPU. The setup script refuses an older pin.
+#
+# `main` (0b5d091) from 2026-11-22: two commits past #82 (`2094273`, the `crates/cpueinsum-replay`
+# harness with per-job export rows, work-share run coverage and dtype-grouped defaults); the
+# commits since are the threadteam 0.6 bump (#83) and a test rename. No release tag contains
+# `1ca7431` yet.
+0b5d091afe7feb94574f5fc59f4f6ee98553be3d
