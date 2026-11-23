@@ -130,6 +130,8 @@ variable set; without it they act on the einsum campaign. Its rules beyond the o
 * `xeon9242-cpu` spans 4 NUMA nodes. Its runs are pinned by the profile's rows, use no `numactl`,
   and record `host.numa` (layout and automatic balancing). The generated page names those records
   but does not print their values: quote them from the profile and `run.yaml` with any number.
+  Its leg was inconclusive as well (the A/A gate failed at widths 8 and 96, #18): the descriptor
+  and suites stay declared, no comparison uses them, and its run data are not committed.
 
 
 ```sh

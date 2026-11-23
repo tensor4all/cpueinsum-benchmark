@@ -17,6 +17,9 @@ id: grouped-xeon9242
 # from pins/cpueinsum-rs-grouped.rev, ebc74c3 or later, which contains the two merges this host needs:
 #   cpueinsum-rs#86 a044c22d92181e89a4e98a153a1e74994c3e1c27 (team formation waits for the workers)
 #   cpueinsum-rs#87 04ff498ab7c854da30ee6f33c1feaf8be7ba8ed1 (no vendor budget without a `blas` row)
+#
+# Status: declared, not used for comparison. The run at the pin was inconclusive (the A/A gate
+# passed at widths 1 and 4 and failed at 8 and 96, #18), so no page of this descriptor is committed.
 measured:
   name: cpueinsum-rs
   url: https://github.com/tensor4all/cpueinsum-rs
