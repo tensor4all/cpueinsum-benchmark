@@ -125,7 +125,8 @@ variable set; without it they act on the einsum campaign. Its rules beyond the o
   declares exactly its capture's calls of its dtype.
 * `apple-m4max` is unpinned; its pages are never compared with a pinned profile's.
 * `xeon9242-cpu` spans 4 NUMA nodes. Its runs are pinned by the profile's rows, use no `numactl`,
-  and record `host.numa` (layout and automatic balancing); its pages state those conditions.
+  and record `host.numa` (layout and automatic balancing). The generated page names those records
+  but does not print their values: quote them from the profile and `run.yaml` with any number.
 
 
 ```sh

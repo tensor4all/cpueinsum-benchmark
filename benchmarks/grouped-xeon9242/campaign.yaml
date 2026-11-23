@@ -58,8 +58,8 @@ result_dir: result-v2/grouped-xeon9242
 #
 # No `blas` row at width 96 (decided on #18): the 96-thread suites declare the four native rows
 # only (`gen_grouped_suite.py --rows sequential,outer,auto,inner`), so that cell is vendor-free.
-# The stock el8 OpenBLAS (0.3.15) is the single-threaded build, the threaded builds available on
-# the cluster stop at 64 threads, and a self-built 96-thread library is not the stock vendor
+# The stock el8 OpenBLAS (0.3.15) is the single-threaded build, the threaded 0.3.30 builds set up on
+# the cluster stop at 64 threads, and a build that reaches 96 is self-built, so not the stock vendor
 # baseline: it would need its own provenance in every table. A full-width vendor comparison, if
 # it is wanted later, is a separately labelled `loader_paths` arm, not this `blas` row.
 # OPEN (#18): the same single-threaded stock library is refused at widths 4 and 8 too, so until
