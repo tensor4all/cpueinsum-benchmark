@@ -18,8 +18,10 @@ rather than being implied by the other arm's page.
 
 | suite | profile | vendor | revision | version | date | coverage | status | page |
 |---|---|---|---|---|---|---|---|---|
-| `grouped-xeon9242-t4-complex128` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
-| `grouped-xeon9242-t4-float64` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
+| `grouped-xeon9242-t4-w1-complex128` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
+| `grouped-xeon9242-t4-w1-float64` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
+| `grouped-xeon9242-t4-w4-8-complex128` | `xeon9242-cpu` (optional) | - | - | - | - | - | missing | - |
+| `grouped-xeon9242-t4-w4-8-float64` | `xeon9242-cpu` (optional) | - | - | - | - | - | missing | - |
 | `grouped-xeon9242-t96-complex128` | `xeon9242-cpu` (optional) | - | - | - | - | - | missing | - |
 | `grouped-xeon9242-t96-float64` | `xeon9242-cpu` (optional) | - | - | - | - | - | missing | - |
 
