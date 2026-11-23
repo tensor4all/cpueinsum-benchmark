@@ -5,7 +5,7 @@ this file is what the generator produces.
 
 Older pages (0): [HISTORY.md](HISTORY.md).
 
-- Reference revision (`pins/cpueinsum-rs-grouped.rev`): `0b5d091afe7feb94574f5fc59f4f6ee98553be3d`
+- Reference revision (`pins/cpueinsum-rs-grouped.rev`): `ebc74c31e485012c1a3c13d5bebd37d88ddd5911`
 - Newest recorded run: `none`
 - Every page below is one `(suite, hardware profile, revision, vendor arm)` and carries
   its commit, its hardware and the vendor library it linked itself.
