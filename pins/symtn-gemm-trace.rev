@@ -1,0 +1,10 @@
+# The grouped-GEMM capture corpus the route campaign replays: Ryo-wtnb11/symtn-rs branch
+# `trace/gemm-trace`, directory `gemm-trace-corpus/`. `scripts/setup_extern_deps.sh` checks it out
+# sparsely as `extern/symtn-gemm-trace` and refuses a capture whose SHA-256 is not the one the
+# corpus README lists for it. It is an external input, not vendored, by the same rule as the
+# einsum instance corpus.
+#
+# `f8206b55` from 2026-11-22: the 4-thread captures accepted on #18 (arm64 `b705d809`, x86_64
+# `c96fb0c9`) plus the full-width captures (16 threads on the M4 Max, 96 on an exclusive Xeon
+# Platinum 9242 node) that decision 4 on #18 asks for.
+f8206b55018b74c9aaf52d7aa6cbec46db65920c

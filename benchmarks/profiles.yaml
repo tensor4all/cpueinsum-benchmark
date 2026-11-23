@@ -20,3 +20,7 @@ profiles:
   # cannot place a process on chosen cores, so its runs record `threads.pinned: false` and
   # `unpinned` CPU sets, and they are never compared with the pinned Linux rows above.
   - apple-m4max
+  # The x86_64 host of the route-fit campaign (#18), resolved against
+  # `campaign_toolkit/profiles/xeon9242-cpu.yaml`: an exclusive lg compute node, 4 NUMA nodes of
+  # 24 cores. Its `numa` block states the NUMA conditions its pages must carry.
+  - xeon9242-cpu

@@ -1,0 +1,131 @@
+schema_version: 1
+id: grouped-m4max
+
+# The grouped-GEMM route campaign of #18 on the aarch64 host (`apple-m4max`, unpinned). It is
+# its own descriptor, selected with `CAMPAIGN_DESCRIPTOR=benchmarks/grouped-m4max/campaign.yaml`,
+# for three reasons that are each a property of one host:
+#   * the corpus a width replays is the host's own capture (decision 4 on #18), and the harness
+#     takes that assignment as `--width-capture`, which only `measured.harness_args` can carry;
+#   * the `blas` row's provider is the host's vendor (Accelerate here, OpenBLAS on x86_64), and
+#     an engine maps to one provider per descriptor;
+#   * its pages must not share an index with a pinned profile's (decision 3 on #18).
+# The x86_64 host is `benchmarks/grouped-xeon9242/campaign.yaml`.
+#
+# Status: declared, not used for comparison. The run at the pin was inconclusive (the A/A gate
+# failed at every width, https://github.com/tensor4all/cpueinsum-benchmark/issues/18#issuecomment-7089091981), so no page of this descriptor is committed.
+measured:
+  name: cpueinsum-rs
+  url: https://github.com/tensor4all/cpueinsum-rs
+  # Its own pin, not the einsum campaign's (decision 2 on #18).
+  pin_file: pins/cpueinsum-rs-grouped.rev
+  extern_dir: extern/cpueinsum-rs-grouped
+  build_script: scripts/build_for_cpueinsum_rev.sh
+  # `crates/cpueinsum-replay` of the measured checkout, installed into `BIN_DIR` by the build
+  # script, so `binary.sha256` is the hash of the binary built out of the pinned checkout.
+  binary: cpueinsum-replay
+  # The corpus directory and the capture each width replays: the 4-thread capture at widths
+  # 1, 4 and 8, the 16-thread (full-width) capture at 16. Appended to every `verify` and `run`.
+  harness_args:
+    - --corpus-dir
+    - extern/symtn-gemm-trace/gemm-trace-corpus
+    - --width-capture
+    - 1=itebd-heff-b705d809-t4,4=itebd-heff-b705d809-t4,8=itebd-heff-b705d809-t4,16=itebd-heff-c853d94f-t16
+  pin_env:
+    rev: CPUEINSUM_REV
+    dirty: CPUEINSUM_DIRTY
+    dir: CPUEINSUM_DIR
+    features: BUILD_FEATURES
+    bin_dir: BIN_DIR
+  protocol: campaign
+
+identities: [library]
+
+profiles_file: benchmarks/profiles.yaml
+suites_dir: benchmarks/grouped-m4max/suites
+data_dir: data/v2-results/grouped-m4max
+result_dir: result-v2/grouped-m4max
+
+# Four routes of `cpueinsum::GroupedPlan` and the vendor GEMM loop of `cpueinsum-blas`. The
+# harness links Accelerate on macOS (`binary-info.txt`, `vendor.name`), so that row is the
+# Accelerate arm.
+engines:
+  sequential: cpueinsum
+  outer: cpueinsum
+  auto: cpueinsum
+  inner: cpueinsum
+  blas: accelerate
+
+vendor_providers: [accelerate]
+external_providers: []
+
+# The harness sets the vendor's thread count from the row's width (on macOS by re-executing
+# with `VECLIB_MAXIMUM_THREADS`), so no inherited value may reach it.
+vendor_env:
+  - RAYON_NUM_THREADS
+  - OMP_NUM_THREADS
+  - VECLIB_MAXIMUM_THREADS
+  - OPENBLAS_NUM_THREADS
+  - MKL_NUM_THREADS
+
+csv_columns:
+  - regime
+  - family
+  - dtype
+  - order
+  - m
+  - n
+  - k
+  - batch
+  - row
+  - threads
+  - total_ms
+  - per_item_us
+  - status
+  - note
+  - samples_ms
+  - rayon_threads
+  - vendor_threads
+  - case_m
+  - case_n
+  - case_k
+  - capture
+  - capture_sha256
+  - job_m
+  - job_n
+  - job_k
+  - route_observed
+  - inner_calls
+
+page_name: "{library12}{version}{dirty}{timing}"
+
+default_invalidated_by:
+  - crates/cpueinsum-replay/**
+  - crates/cpueinsum-bench/**
+  - crates/cpueinsum/**
+  - crates/cpueinsum-blas/**
+  - Cargo.toml
+  - Cargo.lock
+
+# The campaign's frozen v2 contract, except `aa`: the recorder requires whole rotation cycles
+# over the declared engine rows, and this suite declares five, so the smallest legal A/A is 5
+# process sets (the einsum campaign's 2 is one cycle over its two rows).
+timing:
+  version: 2
+  aa: 5
+  reps: 5
+  prime_ms: 250
+
+report:
+  verdicts: false
+  library_label: cpueinsum-rs commit
+  provider_label: GroupedPlan routes
+  harness_label: harness commit
+  index_generator: scripts/v2/gen_index.py
+  setup_script: scripts/setup_extern_deps.sh
+  verify_note: |-
+    Every row below passed `{binary} verify` on the same grid before timing. The operands are small
+    integers, so every summation order, blocking and FMA gives the same value: `sequential` is compared
+    with a naive definition and every other row with `sequential` at the same width, with exact (IEEE)
+    equality, and every output is NaN-filled before the call so a slot that is never written fails.
+    Times are milliseconds per call, the median of the chronological samples of each cell; one sample
+    batches enough back-to-back calls to last at least 1 ms.

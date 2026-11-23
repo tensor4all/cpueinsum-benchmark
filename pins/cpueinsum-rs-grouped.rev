@@ -1,0 +1,27 @@
+# The measured revision of the grouped-GEMM route campaign (#18): what
+# `scripts/setup_extern_deps.sh` materialises as `extern/cpueinsum-rs-grouped` and what
+# `result-v2/grouped-m4max/INDEX.md` measures staleness against.
+#
+# It is its own pin, not `pins/cpueinsum-rs.rev` (decision 2 on #18): that file is the einsum
+# campaign's reference revision, and moving it would mark the einsum pages stale for a reason
+# unrelated to them. This pin must be at or after cpueinsum-rs `1ca7431` (#73/#74, the vendor
+# GEMM runs inside the caller's team); before it the `blas` row above one thread measures one
+# CPU. The setup script refuses an older pin.
+#
+# `main` (0b5d091) from 2026-11-22: two commits past #82 (`2094273`, the `crates/cpueinsum-replay`
+# harness with per-job export rows, work-share run coverage and dtype-grouped defaults); the
+# commits since are the threadteam 0.6 bump (#83) and a test rename. No release tag contains
+# `1ca7431` yet.
+# `main` (cb8e71f) from 2026-11-22: the merge of #84, which makes `cpueinsum-replay` report
+# Accelerate's `vendor.linkage` as `shared` (the campaign schema's term for a dynamic library)
+# instead of `framework`, which the recorder refused. It is the only change since 0b5d091.
+# `main` (ebc74c3) from 2026-11-22: #85-#88. The M4 Max run at cb8e71f stopped at its first
+# 16-thread cell: `cpueinsum-replay` could not reserve a freshly built pool as a team. #86 makes
+# the harness wait up to 10 s for the workers. #87 sets the vendor's budget only when the `blas`
+# row runs (the x86_64 leg needs it). #85 moves the measured library itself (`GroupedPlan`
+# holds shared child plans), so no number recorded at cb8e71f carries over to this pin.
+# The same pin serves both hosts. For the record asked on #18, the two merges in this pin that
+# the replay harness needed are cpueinsum-rs#86 a044c22d92181e89a4e98a153a1e74994c3e1c27 (the
+# team waits for the pool's workers) and #87 04ff498ab7c854da30ee6f33c1feaf8be7ba8ed1 (no vendor
+# budget without a `blas` row).
+ebc74c31e485012c1a3c13d5bebd37d88ddd5911
