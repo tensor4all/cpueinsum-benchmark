@@ -12,4 +12,7 @@
 # harness with per-job export rows, work-share run coverage and dtype-grouped defaults); the
 # commits since are the threadteam 0.6 bump (#83) and a test rename. No release tag contains
 # `1ca7431` yet.
-0b5d091afe7feb94574f5fc59f4f6ee98553be3d
+# `main` (cb8e71f) from 2026-11-22: the merge of #84, which makes `cpueinsum-replay` report
+# Accelerate's `vendor.linkage` as `shared` (the campaign schema's term for a dynamic library)
+# instead of `framework`, which the recorder refused. It is the only change since 0b5d091.
+cb8e71fcf519aae2e2b2b953e88e988a59e460b1
