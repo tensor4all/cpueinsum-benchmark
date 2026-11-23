@@ -6,7 +6,7 @@ this file is what the generator produces.
 Every page not selected for the index's Cells table, newest first and grouped by the
 revisions it measured. The current pages are in [INDEX.md](INDEX.md).
 
-- Reference revision (`pins/cpueinsum-rs-grouped.rev`): `cb8e71fcf519aae2e2b2b953e88e988a59e460b1`
+- Reference revision (`pins/cpueinsum-rs-grouped.rev`): `ebc74c31e485012c1a3c13d5bebd37d88ddd5911`
 - Newest recorded run: `none`
 - Every page below is one `(suite, hardware profile, revision, vendor arm)` and carries
   its commit, its hardware and the vendor library it linked itself.

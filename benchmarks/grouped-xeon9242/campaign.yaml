@@ -10,7 +10,13 @@ id: grouped-xeon9242
 #   * the `blas` row's provider is the host's vendor (Accelerate here, OpenBLAS on x86_64), and
 #     an engine maps to one provider per descriptor;
 #   * its pages must not share an index with another host's (decision 3 on #18).
-# Everything else (pins, harness, rows, timing contract, columns) is the M4 Max descriptor's.
+# Everything else (pins, harness, timing contract, columns, and the rows except at width 96, below)
+# is the M4 Max descriptor's.
+#
+# Campaign note, replay harness version (recorded as asked on #18): `cpueinsum-replay` is built
+# from pins/cpueinsum-rs-grouped.rev, ebc74c3 or later, which contains the two merges this host needs:
+#   cpueinsum-rs#86 a044c22d92181e89a4e98a153a1e74994c3e1c27 (team formation waits for the workers)
+#   cpueinsum-rs#87 04ff498ab7c854da30ee6f33c1feaf8be7ba8ed1 (no vendor budget without a `blas` row)
 measured:
   name: cpueinsum-rs
   url: https://github.com/tensor4all/cpueinsum-rs
@@ -58,6 +64,8 @@ result_dir: result-v2/grouped-xeon9242
 # it is wanted later, is a separately labelled `loader_paths` arm, not this `blas` row.
 # OPEN (#18): the same single-threaded stock library is refused at widths 4 and 8 too, so until
 # a threaded OpenBLAS is chosen the `blas` row of the 4-thread suites can only run at width 1.
+# The census of those suites (untimed) loaded a threaded 0.3.30 build through `LD_LIBRARY_PATH`;
+# that is not a declaration of the library a timed run uses.
 #
 # Four rows make one rotation cycle of four process sets, so the 96-thread suites are recorded
 # with `--aa 4`; the 1/4/8-thread suites keep the five-row `aa: 5` below.

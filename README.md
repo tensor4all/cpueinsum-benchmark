@@ -93,7 +93,7 @@ the grouped GEMM calls symtn issues in a real calculation (iTEBD + H_eff, U(1) a
 The harness is `cpueinsum-replay` (`crates/cpueinsum-replay` of the measured checkout). Its
 rows are `sequential`, `outer`, `auto` and `inner` (`cpueinsum::GroupedPlan` under that
 `BatchStrategy`) and `blas` (`cpueinsum_blas::GroupedPlan` on the host's vendor, Accelerate on
-macOS, the system OpenBLAS on Linux). A family is one call record of a capture, `<capture>:rNNN`.
+macOS, OpenBLAS on Linux). A family is one call record of a capture, `<capture>:rNNN`.
 Widths 1, 4 and 8 replay the host's 4-thread capture and full width (16 on the M4 Max, 96 on the
 Xeon) its full-width capture; the descriptor says so in `--width-capture`. Each suite holds one dtype and one capture, because the recorder passes a
 run's dtypes and widths to every population: mixing them would declare cells the harness can
@@ -116,7 +116,12 @@ job on a 96-core node. Its profile (campaign-toolkit `xeon9242-cpu`) pins widths
 NUMA node 0 and 96 to the whole node, and states the NUMA conditions: CPU affinity only, no
 `numactl`, automatic NUMA balancing on. Its 96-thread suites have no `blas` row (the descriptor
 says why) and are recorded with `--aa 4`; turbo cannot be switched off there, so every run sets
-`FBENCH_ALLOW_BOOST=1` and its cells compare within that host only.
+`FBENCH_ALLOW_BOOST=1` and its cells compare within that host only. Whether `blas` runs at widths
+4 and 8 there is open on #18, because the stock OpenBLAS is single-threaded.
+
+Campaign note: the Xeon's replay harness needs cpueinsum-rs#86
+(`a044c22d92181e89a4e98a153a1e74994c3e1c27`) and cpueinsum-rs#87
+(`04ff498ab7c854da30ee6f33c1feaf8be7ba8ed1`), both in the grouped pin.
 
 
 It is not the library's per-PR suite. cpueinsum-rs keeps its own tests and gates; this
