@@ -20,8 +20,8 @@ rather than being implied by the other arm's page.
 |---|---|---|---|---|---|---|---|---|
 | `grouped-xeon9242-t4-complex128` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
 | `grouped-xeon9242-t4-float64` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
-| `grouped-xeon9242-t96-complex128` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
-| `grouped-xeon9242-t96-float64` | `xeon9242-cpu` (optional) | `openblas` | - | - | - | - | missing | - |
+| `grouped-xeon9242-t96-complex128` | `xeon9242-cpu` (optional) | - | - | - | - | - | missing | - |
+| `grouped-xeon9242-t96-float64` | `xeon9242-cpu` (optional) | - | - | - | - | - | missing | - |
 
 `missing` is a normal cell, not an error: the campaign is not run on every
 profile for every commit. A cell is listed here only with a page measured at the

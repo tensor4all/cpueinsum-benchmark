@@ -115,11 +115,18 @@ def placement(profile, widths):
     missing = [t for t in widths if t not in rows]
     if missing:
         sys.exit(f"ERROR: profile {name} has no thread row for widths {missing}")
-    return ({name: [rows[t] for t in widths]},
-            f"The host is `{name}`, pinned by its thread rows. Its NUMA conditions (row "
+    note = (f"The host is `{name}`, pinned by its thread rows. Its NUMA conditions (row "
             "placement, memory policy, automatic NUMA balancing) are the profile's `numa` "
             "block, and each run records the node layout and balancing it found in "
             "`host.numa`.")
+    power = profile.get("power") or {}
+    if power.get("cpufreq_boost") != "0" and power.get("intel_no_turbo") != "1":
+        # The profile does not ask for boost off, so the host cannot switch it: the recorder
+        # needs FBENCH_ALLOW_BOOST=1 and the manifest's host.power shows the state it ran in.
+        note += (" Boost/turbo is not switched off on this host: runs are recorded under "
+                 "`FBENCH_ALLOW_BOOST=1`, so cells compare within this host only and are not "
+                 "a boost-off baseline.")
+    return {name: [rows[t] for t in widths]}, note
 
 
 def descriptor():
@@ -146,10 +153,10 @@ def capture_families(corpus_dir, stem, dtype):
     return families, len(records), provenance["engine_threads"]
 
 
-def run_census(binary, harness_args, thread, dtype, families, out_path):
+def run_census(binary, harness_args, thread, dtype, families, rows, out_path):
     cmd = [str(binary), "verify", *harness_args,
            "--threads", str(thread), "--n", "1", "--batch", "1", "--dtype", dtype,
-           "--family", ",".join(families), "--rows", ",".join(ROWS),
+           "--family", ",".join(families), "--rows", ",".join(rows),
            "--regime", REGIME, "--census-csv", str(out_path)]
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
     if proc.returncode != 0 or "all comparisons within tolerance" not in proc.stdout:
@@ -166,7 +173,13 @@ def main(argv=None):
     ap.add_argument("--dtype", required=True, choices=sorted(DTYPE_OF_RECORD.values()))
     ap.add_argument("--profile", default="apple-m4max")
     ap.add_argument("--out", required=True, type=pathlib.Path)
+    ap.add_argument("--rows", default=",".join(ROWS),
+                    help="the engine rows this suite declares (default: all five); the "
+                         "descriptor says why a suite leaves one out")
     args = ap.parse_args(argv)
+    engine_rows = args.rows.split(",")
+    if not engine_rows or any(r not in ROWS for r in engine_rows):
+        sys.exit(f"ERROR: --rows must name rows of {ROWS}")
 
     d = descriptor()
     harness_args = list(d["measured"]["harness_args"])
@@ -187,7 +200,8 @@ def main(argv=None):
     commands, rows = [], []
     for t in widths:
         path = workdir / f"{args.out.stem}-{t}t.census.csv"
-        commands.append(run_census(args.binary, harness_args, t, args.dtype, families, path))
+        commands.append(run_census(args.binary, harness_args, t, args.dtype, families,
+                                   engine_rows, path))
         rows.extend(read_census(path))
     skipped = [r for r in rows if r["status"] == "skipped"]
 
@@ -240,10 +254,12 @@ def main(argv=None):
             "threads": widths,
             "cpu_sets": cpu_sets,
             "dtypes": [args.dtype],
-            "engines": list(ROWS),
+            "engines": engine_rows,
             "populations": [{"regime": REGIME, "groups": [REGIME], "n": ["1"], "batch": [1]}],
         }],
-        "engines_doc": {**ENGINES_DOC, "blas": blas_doc(d["engines"]["blas"])},
+        "engines_doc": {row: doc for row, doc in
+                        {**ENGINES_DOC, "blas": blas_doc(d["engines"]["blas"])}.items()
+                        if row in engine_rows},
     }
     expected = check_coverage(suite, rows)
     header = [

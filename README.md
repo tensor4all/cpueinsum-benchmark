@@ -114,7 +114,9 @@ The x86_64 leg is the same with `CAMPAIGN_DESCRIPTOR=benchmarks/grouped-xeon9242
 `--profile xeon9242-cpu` for the generator and `record_run.py xeon9242-cpu <suite>`, in an exclusive
 job on a 96-core node. Its profile (campaign-toolkit `xeon9242-cpu`) pins widths 1, 4 and 8 to
 NUMA node 0 and 96 to the whole node, and states the NUMA conditions: CPU affinity only, no
-`numactl`, automatic NUMA balancing on.
+`numactl`, automatic NUMA balancing on. Its 96-thread suites have no `blas` row (the descriptor
+says why) and are recorded with `--aa 4`; turbo cannot be switched off there, so every run sets
+`FBENCH_ALLOW_BOOST=1` and its cells compare within that host only.
 
 
 It is not the library's per-PR suite. cpueinsum-rs keeps its own tests and gates; this
