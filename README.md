@@ -92,7 +92,12 @@ the grouped GEMM calls symtn issues in a real calculation (iTEBD + H_eff, U(1) a
 
 The M4 Max leg was recorded at the pin and is inconclusive: its declared A/A gate failed at every
 width (https://github.com/tensor4all/cpueinsum-benchmark/issues/18#issuecomment-7089091981). Its descriptor and suites stay declared so the record of what was run is kept, but
-no comparison uses them and its run data are not committed. The campaign continues on the Xeon.
+no comparison uses them and its run data are not committed.
+
+The Xeon 9242 leg was recorded at the same pin, all six suites in one exclusive job, and is
+inconclusive too: its declared A/A gate passed at widths 1 and 4 and failed at widths 8 and 96 (#18),
+and a failure at any width makes the whole host run inconclusive. The same rule applies: its
+descriptor and suites stay declared, no comparison uses them and its run data are not committed.
 
 The harness is `cpueinsum-replay` (`crates/cpueinsum-replay` of the measured checkout). Its
 rows are `sequential`, `outer`, `auto` and `inner` (`cpueinsum::GroupedPlan` under that
